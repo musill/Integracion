@@ -1,10 +1,11 @@
 # api_clients/api_sqlite.py
 import requests
-from models.schemas import EstudianteCreate
+from models.schemas import Estudiante
 
 
 
-BASE_URL = "http://localhost:8000"  # Cambia esto si tu API SQLite está en otro puerto
+
+BASE_URL = "http://localhost:8085"
 
 # --- Estudiantes ---
 def get_estudiantes():
@@ -22,7 +23,6 @@ def update_estudiante(id, data):
 def delete_estudiante(id):
     return requests.delete(f"{BASE_URL}/estudiantes/{id}").json()
 
-
 # --- Profesores ---
 def get_profesores():
     return requests.get(f"{BASE_URL}/profesores").json()
@@ -38,7 +38,6 @@ def update_profesor(id, data):
 
 def delete_profesor(id):
     return requests.delete(f"{BASE_URL}/profesores/{id}").json()
-
 
 # --- Asignaturas ---
 def get_asignaturas():
@@ -56,7 +55,6 @@ def update_asignatura(id, data):
 def delete_asignatura(id):
     return requests.delete(f"{BASE_URL}/asignaturas/{id}").json()
 
-
 # --- Matrícula ---
 def get_matriculas():
     return requests.get(f"{BASE_URL}/matricula").json()
@@ -73,7 +71,6 @@ def update_matricula(id, data):
 def delete_matricula(id):
     return requests.delete(f"{BASE_URL}/matricula/{id}").json()
 
-
 # --- Profeciclo ---
 def get_profeciclos():
     return requests.get(f"{BASE_URL}/profeciclo").json()
@@ -89,3 +86,10 @@ def update_profeciclo(id, data):
 
 def delete_profeciclo(id):
     return requests.delete(f"{BASE_URL}/profeciclo/{id}").json()
+
+# Alias para sincronización
+get_all_estudiantes = get_estudiantes
+get_all_profesores = get_profesores
+get_all_asignaturas = get_asignaturas
+get_all_matricula = get_matriculas
+get_all_profeciclo = get_profeciclos

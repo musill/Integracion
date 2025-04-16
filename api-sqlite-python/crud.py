@@ -13,6 +13,10 @@ def create_estudiante(db: Session, est: schemas.EstudianteCreate):
 def get_estudiantes(db: Session):
     return db.query(models.Estudiante).all()
 
+def get_estudiante_by_id(db: Session, est_id: str):
+    return db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()
+
+
 def get_pending_estudiantes(db: Session):
     return db.query(models.Estudiante).filter(models.Estudiante.flag_sync == False).all()
 
@@ -33,6 +37,9 @@ def create_asignatura(db: Session, obj: schemas.AsignaturaCreate):
 
 def get_asignaturas(db: Session):
     return db.query(models.Asignatura).all()
+
+def get_asignatura_by_id(db: Session, idasig: int):
+    return db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
 
 def get_pending_asignaturas(db: Session):
     return db.query(models.Asignatura).filter(models.Asignatura.flag_sync == False).all()
@@ -55,6 +62,10 @@ def create_profesor(db: Session, obj: schemas.ProfesorCreate):
 def get_profesores(db: Session):
     return db.query(models.Profesor).all()
 
+def get_profesor_by_id(db: Session, idprof: int):
+    return db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
+
+
 def get_pending_profesores(db: Session):
     return db.query(models.Profesor).filter(models.Profesor.flag_sync == False).all()
 
@@ -76,6 +87,9 @@ def create_matricula(db: Session, obj: schemas.MatriculaCreate):
 def get_matriculas(db: Session):
     return db.query(models.Matricula).all()
 
+def get_matricula_by_id(db: Session, id: int):
+    return db.query(models.Matricula).filter(models.Matricula.id == id).first()
+
 def get_pending_matriculas(db: Session):
     return db.query(models.Matricula).filter(models.Matricula.flag_sync == False).all()
 
@@ -96,6 +110,9 @@ def create_profeciclo(db: Session, obj: schemas.ProfecicloCreate):
 
 def get_profeciclos(db: Session):
     return db.query(models.Profeciclo).all()
+
+def get_profeciclo_by_id(db: Session, id: int):
+    return db.query(models.Profeciclo).filter(models.Profeciclo.id == id).first()
 
 def get_pending_profeciclos(db: Session):
     return db.query(models.Profeciclo).filter(models.Profeciclo.flag_sync == False).all()

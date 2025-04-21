@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Depends
-from sqlalchemy.orm import Session
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session, joinedload
+from fastapi.middleware.cors import CORSMiddleware
 import models, database, crud, schemas
 
 models.Base.metadata.create_all(bind=database.engine)
@@ -9,6 +10,14 @@ def get_db():
     db = database.SessionLocal()
     try: yield db
     finally: db.close()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # -------- Estudiantes --------
 @app.post("/estudiantes/", response_model=schemas.Estudiante)
@@ -83,12 +92,16 @@ def update_flag_prof(idprof: int, db: Session = Depends(get_db)):
 
 # -------- Matricula --------
 @app.post("/matricula/", response_model=schemas.Matricula)
-def create_matricula(obj: schemas.MatriculaCreate, db: Session = Depends(get_db)):
-    return crud.create_matricula(db, obj)
+def create_matricula(matricula: schemas.MatriculaCreate, db: Session = Depends(get_db)):
+    db_matricula = models.Matricula(**matricula.dict())
+    db.add(db_matricula)
+    db.commit()
+    db.refresh(db_matricula)
+    return db_matricula
 
 @app.get("/matricula/", response_model=list[schemas.Matricula])
-def read_matriculas(db: Session = Depends(get_db)):
-    return crud.get_matriculas(db)
+def get_matriculas(db: Session = Depends(get_db)):
+    return db.query(models.Matricula).options(joinedload(models.Matricula.ciclo)).all()
 
 @app.get("/matricula/{id}", response_model=schemas.Matricula)
 def read_matricula(id: int, db: Session = Depends(get_db)):

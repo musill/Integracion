@@ -1,4 +1,5 @@
 from sqlalchemy import Column, String, Integer, Float, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 from database import Base
 
 class Estudiante(Base):
@@ -24,11 +25,14 @@ class Matricula(Base):
     id = Column(Integer, primary_key=True, index=True)
     id_estudiante = Column(String, ForeignKey("estudiantes.id"))
     id_asignatura = Column(Integer, ForeignKey("asignaturas.idasignatura"))
-    id_ciclo = Column(Integer)
+    id_ciclo = Column(Integer, ForeignKey("profeciclo.id"))  # ForeignKey al modelo Profeciclo
     notauno = Column(Float)
     notados = Column(Float)
     supletorio = Column(Float)
     flag_sync = Column(Boolean, default=False)
+
+    # Relación con Profeciclo
+    ciclo = relationship("Profeciclo", back_populates="matriculas")
 
 class Profeciclo(Base):
     __tablename__ = "profeciclo"
@@ -37,3 +41,6 @@ class Profeciclo(Base):
     id_profesor = Column(Integer, ForeignKey("profesores.idprofesor"))
     id_asignatura = Column(Integer, ForeignKey("asignaturas.idasignatura"))
     flag_sync = Column(Boolean, default=False)
+
+    # Relación inversa con Matricula
+    matriculas = relationship("Matricula", back_populates="ciclo")

@@ -1,174 +1,151 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
-const Matriculas = () => {
-  const [matriculas, setMatriculas] = useState([]);
-  const [formData, setFormData] = useState({
-    id_estudiante: "",
-    id_asignatura: "",
-    id_profeciclo: "",
-    notauno: 0,
-    notados: 0,
-    supletorio: 0,
-  });
+const Matricula = () => {
   const [estudiantes, setEstudiantes] = useState([]);
   const [asignaturas, setAsignaturas] = useState([]);
   const [profeciclos, setProfeciclos] = useState([]);
+  const [matriculas, setMatriculas] = useState([]); 
 
-  const apiBaseUrl = "http://127.0.0.1:8000";
+  const [formData, setFormData] = useState({
+    id_estudiante: "",
+    id_asignatura: "",
+    id_ciclo: "",
+    notauno: 0, 
+    notados: 0, 
+    supletorio: 0,
+  });
 
-  // Función general para actualizar todo
-  const fetchAll = useCallback(async () => {
-    await Promise.all([
-      fetchEstudiantes(),
-      fetchAsignaturas(),
-      fetchProfeciclos(),
-      fetchMatriculas(),
-    ]);
+  const [editId, setEditId] = useState(null); // ID de la matrícula que se está editando
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    axios.get("http://127.0.0.1:8000/estudiantes/").then((res) => setEstudiantes(res.data));
+    axios.get("http://127.0.0.1:8000/asignaturas/").then((res) => setAsignaturas(res.data));
+    axios.get("http://127.0.0.1:8000/profeciclo/").then((res) => setProfeciclos(res.data));
+    fetchMatriculas(); // Cargar las matrículas
   }, []);
 
+  // Obtener las matrículas
   const fetchMatriculas = async () => {
     try {
-      const res = await fetch(`${apiBaseUrl}/matricula/`);
-      const data = await res.json();
-      setMatriculas(data);
+      const res = await axios.get("http://127.0.0.1:8000/matricula/");
+      setMatriculas(res.data);
     } catch (error) {
-      console.error("Error al obtener matrículas:", error);
-    }
-  };
-
-  const fetchEstudiantes = async () => {
-    try {
-      const res = await fetch(`${apiBaseUrl}/estudiantes/`);
-      const data = await res.json();
-      setEstudiantes(data);
-    } catch (error) {
-      console.error("Error al obtener estudiantes:", error);
-    }
-  };
-
-  const fetchAsignaturas = async () => {
-    try {
-      const res = await fetch(`${apiBaseUrl}/asignaturas/`);
-      const data = await res.json();
-      setAsignaturas(data);
-    } catch (error) {
-      console.error("Error al obtener asignaturas:", error);
-    }
-  };
-
-  const fetchProfeciclos = async () => {
-    try {
-      const res = await fetch(`${apiBaseUrl}/profeciclo/`);
-      if (res.ok) {
-        const data = await res.json();
-        setProfeciclos(data);
-      } else {
-        console.error("Error al obtener profeciclos:", res.statusText);
-      }
-    } catch (error) {
-      console.error("Error de conexión al obtener profeciclos:", error);
+      console.error("Error al obtener las matrículas:", error);
     }
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Datos enviados al backend:", formData);
+
+    const payload = {
+      ...formData,
+      id_asignatura: parseInt(formData.id_asignatura),
+      id_ciclo: parseInt(formData.id_ciclo),
+      notauno: 0, // Forzado a 0
+      notados: 0, // Forzado a 0
+      supletorio: 0, // Forzado a 0
+    };
+
     try {
-      const res = await fetch(`${apiBaseUrl}/matricula/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        setFormData({
-          id_estudiante: "",
-          id_asignatura: "",
-          id_profeciclo: "",
-          notauno: 0,
-          notados: 0,
-          supletorio: 0,
-        });
-        await fetchAll(); // Actualiza todo tras agregar
+      if (editId) {
+        // Actualizar matrícula
+        await axios.put(`http://127.0.0.1:8000/matricula/${editId}/`, payload);
+        alert("Matrícula actualizada con éxito");
+        setEditId(null); // Salir del modo de edición
       } else {
-        console.error("Error al crear matrícula:", res.statusText);
+        // Crear nueva matrícula
+        await axios.post("http://127.0.0.1:8000/matricula/", payload);
+        alert("Matrícula registrada con éxito");
       }
-    } catch (error) {
-      console.error("Error al crear matrícula:", error);
-    }
-  };
 
-  const deleteMatricula = async (id) => {
-    try {
-      const res = await fetch(`${apiBaseUrl}/matricula/${id}`, {
-        method: "DELETE",
+      setFormData({
+        id_estudiante: "",
+        id_asignatura: "",
+        id_ciclo: "",
+        notauno: 0,
+        notados: 0,
+        supletorio: 0,
       });
-      if (res.ok) {
-        await fetchAll(); // Actualiza todo tras eliminar
-      }
+      fetchMatriculas(); // Actualizar la tabla de matrículas
     } catch (error) {
-      console.error("Error al eliminar matrícula:", error);
+      console.error("Error:", error.response?.data || error);
+      alert("Error al registrar/actualizar la matrícula");
     }
   };
 
-  useEffect(() => {
-    fetchAll(); // Carga inicial
-  }, [fetchAll]);
+  const handleEdit = (matricula) => {
+    setEditId(matricula.id); // Establecer el ID de la matrícula que se está editando
+    setFormData({
+      id_estudiante: matricula.id_estudiante,
+      id_asignatura: matricula.id_asignatura,
+      id_ciclo: matricula.id_ciclo,
+      notauno: matricula.notauno,
+      notados: matricula.notados,
+      supletorio: matricula.supletorio,
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("¿Estás seguro de que deseas eliminar esta matrícula?")) {
+      try {
+        await axios.delete(`http://127.0.0.1:8000/matricula/${id}/`);
+        alert("Matrícula eliminada con éxito");
+        fetchMatriculas(); // Actualizar la tabla de matrículas
+      } catch (error) {
+        console.error("Error al eliminar la matrícula:", error);
+        alert("Error al eliminar la matrícula");
+      }
+    }
+  };
 
   return (
     <div>
-      <h2>Matrículas</h2>
+      <h2>{editId ? "Editar Matrícula" : "Registrar Matrícula"}</h2>
       <form onSubmit={handleSubmit}>
-        <select
-          name="id_estudiante"
-          value={formData.id_estudiante}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Seleccione un estudiante</option>
-          {estudiantes.map((est) => (
-            <option key={est.id} value={est.id}>
-              {est.nombre}
+        <select name="id_estudiante" value={formData.id_estudiante} onChange={handleChange} required>
+          <option value="">Seleccione Estudiante</option>
+          {estudiantes.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.nombre}
             </option>
           ))}
         </select>
-        <select
-          name="id_asignatura"
-          value={formData.id_asignatura}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Seleccione una asignatura</option>
-          {asignaturas.map((asig) => (
-            <option key={asig.idasignatura} value={asig.idasignatura}>
-              {asig.nombre}
+
+        <select name="id_asignatura" value={formData.id_asignatura} onChange={handleChange} required>
+          <option value="">Seleccione Asignatura</option>
+          {asignaturas.map((a) => (
+            <option key={a.idasignatura} value={a.idasignatura}>
+              {a.nombre}
             </option>
           ))}
         </select>
-        <select
-          name="id_profeciclo"
-          value={formData.id_profeciclo}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Seleccione el Ciclo</option>
-          {Array.isArray(profeciclos) &&
-            profeciclos.map((profeciclo) => (
-              <option key={profeciclo.id} value={profeciclo.id}>
-                {profeciclo.ciclo}
-              </option>
-            ))}
+
+        <select name="id_ciclo" value={formData.id_ciclo} onChange={handleChange} required>
+          <option value="">Seleccione Ciclo</option>
+          {profeciclos.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.ciclo}
+            </option>
+          ))}
         </select>
-        <button type="submit">Agregar</button>
+
+        <button type="submit">{editId ? "Actualizar Matrícula" : "Guardar Matrícula"}</button>
       </form>
 
-      <table>
+      <h2>Lista de Matrículas</h2>
+      <table border="1">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Estudiante</th>
             <th>Asignatura</th>
             <th>Ciclo</th>
@@ -181,24 +158,15 @@ const Matriculas = () => {
         <tbody>
           {matriculas.map((mat) => (
             <tr key={mat.id}>
-              <td>{mat.id}</td>
-              <td>
-                {estudiantes.find((e) => e.id === mat.id_estudiante)?.nombre ||
-                  "Desconocido"}
-              </td>
-              <td>
-                {asignaturas.find(
-                  (a) => a.idasignatura === mat.id_asignatura
-                )?.nombre || "Desconocido"}
-              </td>
-              <td>
-                {profeciclos.find((p) => p.id === mat.id_ciclo)?.ciclo || "Desconocido"}
-              </td>
+              <td>{estudiantes.find((e) => e.id === mat.id_estudiante)?.nombre || "Desconocido"}</td>
+              <td>{asignaturas.find((a) => a.idasignatura === mat.id_asignatura)?.nombre || "Desconocido"}</td>
+              <td>{profeciclos.find((p) => p.id === mat.id_ciclo)?.ciclo || "Desconocido"}</td>
               <td>{mat.notauno}</td>
               <td>{mat.notados}</td>
               <td>{mat.supletorio}</td>
               <td>
-                <button onClick={() => deleteMatricula(mat.id)}>Eliminar</button>
+                <button onClick={() => handleEdit(mat)}>Editar</button>
+                <button onClick={() => handleDelete(mat.id)}>Eliminar</button>
               </td>
             </tr>
           ))}
@@ -208,4 +176,4 @@ const Matriculas = () => {
   );
 };
 
-export default Matriculas;
+export default Matricula;

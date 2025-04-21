@@ -93,11 +93,17 @@ def update_flag_prof(idprof: int, db: Session = Depends(get_db)):
 # -------- Matricula --------
 @app.post("/matricula/", response_model=schemas.Matricula)
 def create_matricula(matricula: schemas.MatriculaCreate, db: Session = Depends(get_db)):
-    db_matricula = models.Matricula(**matricula.dict())
-    db.add(db_matricula)
-    db.commit()
-    db.refresh(db_matricula)
-    return db_matricula
+    # Log para verificar los datos recibidos
+    print("Datos recibidos en el backend:", matricula.dict())
+    try:
+        db_matricula = models.Matricula(**matricula.dict())
+        db.add(db_matricula)
+        db.commit()
+        db.refresh(db_matricula)
+        return db_matricula
+    except Exception as e:
+        print("Error al crear matrícula:", e)
+        raise HTTPException(status_code=500, detail="Error interno del servidor")
 
 @app.get("/matricula/", response_model=list[schemas.Matricula])
 def get_matriculas(db: Session = Depends(get_db)):

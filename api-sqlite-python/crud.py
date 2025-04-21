@@ -16,6 +16,21 @@ def get_estudiantes(db: Session):
 def get_estudiante_by_id(db: Session, est_id: str):
     return db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()
 
+def update_estudiante(db: Session, est_id: str, obj: schemas.EstudianteCreate):
+    db_obj = db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()
+    if db_obj:
+        for key, value in obj.dict().items():
+            setattr(db_obj, key, value)
+        db.commit()
+        db.refresh(db_obj)
+    return db_obj
+
+def delete_estudiante(db: Session, est_id: str):
+    db_obj = db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()
+    if db_obj:
+        db.delete(db_obj)
+        db.commit()
+    return db_obj
 
 def get_pending_estudiantes(db: Session):
     return db.query(models.Estudiante).filter(models.Estudiante.flag_sync == False).all()

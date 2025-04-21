@@ -23,6 +23,14 @@ def read_ests(db: Session = Depends(get_db)):
 def read_est(est_id: str, db: Session = Depends(get_db)):
     return crud.get_estudiante_by_id(db, est_id)
 
+@app.put("/estudiantes/{est_id}", response_model=schemas.Estudiante)
+def update_est(est_id: str, obj: schemas.EstudianteCreate, db: Session = Depends(get_db)):
+    return crud.update_estudiante(db, est_id, obj)
+
+@app.delete("/estudiantes/{est_id}")
+def delete_est(est_id: str, db: Session = Depends(get_db)):
+    return crud.delete_estudiante(db, est_id)
+
 @app.get("/estudiantes/pending", response_model=list[schemas.Estudiante])
 def pending_ests(db: Session = Depends(get_db)):
     return crud.get_pending_estudiantes(db)

@@ -105,6 +105,22 @@ def get_matriculas(db: Session):
 def get_matricula_by_id(db: Session, id: int):
     return db.query(models.Matricula).filter(models.Matricula.id == id).first()
 
+def update_matricula(db: Session, id: int, obj: schemas.MatriculaCreate):
+        db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
+        if db_obj:
+            for key, value in obj.dict(exclude={"notauno", "notados", "supletorio"}).items():
+                setattr(db_obj, key, value)
+            db.commit()
+            db.refresh(db_obj)
+        return db_obj
+
+def delete_matricula(db: Session, id: int): 
+    db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
+    if db_obj:
+        db.delete(db_obj)
+        db.commit()
+    return db_obj
+
 def get_pending_matriculas(db: Session):
     return db.query(models.Matricula).filter(models.Matricula.flag_sync == False).all()
 

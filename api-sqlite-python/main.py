@@ -94,6 +94,14 @@ def read_matriculas(db: Session = Depends(get_db)):
 def read_matricula(id: int, db: Session = Depends(get_db)):
     return crud.get_matricula_by_id(db, id)
 
+@app.put("/matricula/{id}", response_model=schemas.Matricula)
+def update_matricula(id: int, obj: schemas.MatriculaCreate, db: Session = Depends(get_db)):
+    return crud.update_matricula(db, id, obj)
+
+@app.delete("/matricula/{id}")
+def delete_matricula(id: int, db: Session = Depends(get_db)):
+    return crud.delete_matricula(db, id)
+
 @app.get("/matricula/pending", response_model=list[schemas.Matricula])
 def pending_matriculas(db: Session = Depends(get_db)):
     return crud.get_pending_matriculas(db)

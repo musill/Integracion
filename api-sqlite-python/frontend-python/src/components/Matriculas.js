@@ -5,14 +5,14 @@ const Matricula = () => {
   const [estudiantes, setEstudiantes] = useState([]);
   const [asignaturas, setAsignaturas] = useState([]);
   const [profeciclos, setProfeciclos] = useState([]);
-  const [matriculas, setMatriculas] = useState([]); 
+  const [matriculas, setMatriculas] = useState([]);
 
   const [formData, setFormData] = useState({
     id_estudiante: "",
     id_asignatura: "",
     id_ciclo: "",
-    notauno: 0, 
-    notados: 0, 
+    notauno: 0,
+    notados: 0,
     supletorio: 0,
   });
 
@@ -20,9 +20,15 @@ const Matricula = () => {
 
   // Cargar datos iniciales
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/estudiantes/").then((res) => setEstudiantes(res.data));
-    axios.get("http://127.0.0.1:8000/asignaturas/").then((res) => setAsignaturas(res.data));
-    axios.get("http://127.0.0.1:8000/profeciclo/").then((res) => setProfeciclos(res.data));
+    axios
+      .get("http://127.0.0.1:8000/estudiantes/")
+      .then((res) => setEstudiantes(res.data));
+    axios
+      .get("http://127.0.0.1:8000/asignaturas/")
+      .then((res) => setAsignaturas(res.data));
+    axios
+      .get("http://127.0.0.1:8000/profeciclo/")
+      .then((res) => setProfeciclos(res.data));
     fetchMatriculas(); // Cargar las matrículas
   }, []);
 
@@ -96,7 +102,9 @@ const Matricula = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar esta matrícula?")) {
+    if (
+      window.confirm("¿Estás seguro de que deseas eliminar esta matrícula?")
+    ) {
       try {
         await axios.delete(`http://127.0.0.1:8000/matricula/${id}/`);
         alert("Matrícula eliminada con éxito");
@@ -109,71 +117,110 @@ const Matricula = () => {
   };
 
   return (
-    <div>
-      <h2>{editId ? "Editar Matrícula" : "Registrar Matrícula"}</h2>
-      <form onSubmit={handleSubmit}>
-        <select name="id_estudiante" value={formData.id_estudiante} onChange={handleChange} required>
-          <option value="">Seleccione Estudiante</option>
-          {estudiantes.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.nombre}
-            </option>
-          ))}
-        </select>
-
-        <select name="id_asignatura" value={formData.id_asignatura} onChange={handleChange} required>
-          <option value="">Seleccione Asignatura</option>
-          {asignaturas.map((a) => (
-            <option key={a.idasignatura} value={a.idasignatura}>
-              {a.nombre}
-            </option>
-          ))}
-        </select>
-
-        <select name="id_ciclo" value={formData.id_ciclo} onChange={handleChange} required>
-          <option value="">Seleccione Ciclo</option>
-          {profeciclos.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.ciclo}
-            </option>
-          ))}
-        </select>
-
-        <button type="submit">{editId ? "Actualizar Matrícula" : "Guardar Matrícula"}</button>
+    <div className="container mt-5">
+      <h2 className="text-center text-danger mb-4">
+        {editId ? "✏️ Editar Matrícula" : "📝 Registrar Matrícula"}
+      </h2>
+  
+      <form onSubmit={handleSubmit} className="row g-3 mb-5 border p-4 rounded shadow-sm bg-light">
+        <div className="col-md-4">
+          <label className="form-label">Estudiante</label>
+          <select
+            name="id_estudiante"
+            value={formData.id_estudiante}
+            onChange={handleChange}
+            className="form-select"
+            required
+          >
+            <option value="">Seleccione Estudiante</option>
+            {estudiantes.map((e) => (
+              <option key={e.id} value={e.id}>{e.nombre}</option>
+            ))}
+          </select>
+        </div>
+        <div className="col-md-4">
+          <label className="form-label">Asignatura</label>
+          <select
+            name="id_asignatura"
+            value={formData.id_asignatura}
+            onChange={handleChange}
+            className="form-select"
+            required
+          >
+            <option value="">Seleccione Asignatura</option>
+            {asignaturas.map((a) => (
+              <option key={a.idasignatura} value={a.idasignatura}>{a.nombre}</option>
+            ))}
+          </select>
+        </div>
+        <div className="col-md-4">
+          <label className="form-label">Ciclo</label>
+          <select
+            name="id_ciclo"
+            value={formData.id_ciclo}
+            onChange={handleChange}
+            className="form-select"
+            required
+          >
+            <option value="">Seleccione Ciclo</option>
+            {profeciclos.map((p) => (
+              <option key={p.id} value={p.id}>{p.ciclo}</option>
+            ))}
+          </select>
+        </div>
+  
+        <div className="col-md-12 d-flex justify-content-end">
+          <button type="submit" className={`btn ${editId ? "btn-success" : "btn-primary"}`}>
+            {editId ? (
+              <><i className="bi bi-pencil-square me-2"></i>Actualizar Matrícula</>
+            ) : (
+              <><i className="bi bi-save me-2"></i>Guardar Matrícula</>
+            )}
+          </button>
+        </div>
       </form>
-
-      <h2>Lista de Matrículas</h2>
-      <table border="1">
-        <thead>
-          <tr>
-            <th>Estudiante</th>
-            <th>Asignatura</th>
-            <th>Ciclo</th>
-            <th>Nota Uno</th>
-            <th>Nota Dos</th>
-            <th>Supletorio</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {matriculas.map((mat) => (
-            <tr key={mat.id}>
-              <td>{estudiantes.find((e) => e.id === mat.id_estudiante)?.nombre || "Desconocido"}</td>
-              <td>{asignaturas.find((a) => a.idasignatura === mat.id_asignatura)?.nombre || "Desconocido"}</td>
-              <td>{profeciclos.find((p) => p.id === mat.id_ciclo)?.ciclo || "Desconocido"}</td>
-              <td>{mat.notauno}</td>
-              <td>{mat.notados}</td>
-              <td>{mat.supletorio}</td>
-              <td>
-                <button onClick={() => handleEdit(mat)}>Editar</button>
-                <button onClick={() => handleDelete(mat.id)}>Eliminar</button>
-              </td>
+  
+      <h2 className="text-center text-danger mb-4">📋 Lista de Matrículas</h2>
+      <div className="table-responsive">
+        <table className="table table-bordered table-hover align-middle text-center shadow-sm">
+          <thead className="table-dark">
+            <tr>
+              <th>Estudiante</th>
+              <th>Asignatura</th>
+              <th>Ciclo</th>
+              <th>Nota Uno</th>
+              <th>Nota Dos</th>
+              <th>Supletorio</th>
+              <th style={{ width: "120px" }}>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {matriculas.map((mat) => (
+              <tr key={mat.id}>
+                <td>{estudiantes.find((e) => e.id === mat.id_estudiante)?.nombre || "Desconocido"}</td>
+                <td>{asignaturas.find((a) => a.idasignatura === mat.id_asignatura)?.nombre || "Desconocido"}</td>
+                <td>{profeciclos.find((p) => p.id === mat.id_ciclo)?.ciclo || "Desconocido"}</td>
+                <td>{mat.notauno}</td>
+                <td>{mat.notados}</td>
+                <td>{mat.supletorio}</td>
+                <td>
+                  <div className="d-flex justify-content-center gap-2">
+                    <button className="btn btn-outline-success btn-sm" onClick={() => handleEdit(mat)}>
+                      <i className="bi bi-pencil-square"></i>
+                    </button>
+                    <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(mat.id)}>
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
+  
 };
 
 export default Matricula;

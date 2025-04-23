@@ -33,7 +33,12 @@ def delete_estudiante(db: Session, est_id: str):
     return db_obj
 
 def get_pending_estudiantes(db: Session):
-    return db.query(models.Estudiante).filter(models.Estudiante.flag_sync == False).all()
+    # Obtener los estudiantes con flag_sync = False
+    estudiantes = db.query(models.Estudiante).filter(models.Estudiante.flag_sync == False).all()
+    
+    # Convertir las instancias de Estudiante (SQLAlchemy) a Estudiante (Pydantic)
+    return [schemas.Estudiante(id=est.id, nombre=est.nombre, flag_sync=est.flag_sync) for est in estudiantes]
+
 
 def update_flag_estudiante(db: Session, est_id: str):
     est = db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()

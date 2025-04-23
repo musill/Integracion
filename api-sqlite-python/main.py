@@ -43,6 +43,7 @@ def delete_est(est_id: str, db: Session = Depends(get_db)):
 @app.get("/estudiantes/pending", response_model=list[schemas.Estudiante])
 def pending_ests(db: Session = Depends(get_db)):
     return crud.get_pending_estudiantes(db)
+    
 
 @app.patch("/estudiantes/{est_id}/flag")
 def update_flag(est_id: str, db: Session = Depends(get_db)):

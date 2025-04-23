@@ -6,7 +6,7 @@ class Estudiante(Base):
     __tablename__ = "estudiantes"
     id = Column(String, primary_key=True, index=True)  # cedula
     nombre = Column(String, nullable=False)
-    flag_sync = Column(Boolean, default=False)
+    flag_sync = Column(Boolean, default=False)  # Campo para sincronización
 
 class Asignatura(Base):
     __tablename__ = "asignaturas"

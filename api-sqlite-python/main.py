@@ -2,6 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from fastapi.middleware.cors import CORSMiddleware
 import models, database, crud, schemas
+from fastapi.responses import JSONResponse
+
 
 models.Base.metadata.create_all(bind=database.engine)
 app = FastAPI()
@@ -40,13 +42,27 @@ def update_est(est_id: str, obj: schemas.EstudianteCreate, db: Session = Depends
 def delete_est(est_id: str, db: Session = Depends(get_db)):
     return crud.delete_estudiante(db, est_id)
 
-@app.get("/estudiantes/pending", response_model=list[schemas.Estudiante])
+@app.get("/estudiantes/pending")
 def pending_ests(db: Session = Depends(get_db)):
-    return crud.get_pending_estudiantes(db)
+    result = crud.get_pending_estudiantes(db)
+    data = []
+    for r in result:
+        if r is not None:
+            data.append({
+                "id": r.id,
+                "nombre": r.nombre,
+                "flag_sync": r.flag_sync
+            })
+    return JSONResponse(content=data)
+
 
 @app.patch("/estudiantes/{est_id}/flag")
 def update_flag(est_id: str, db: Session = Depends(get_db)):
-    return crud.update_flag_estudiante(db, est_id)
+    estudiante = crud.update_flag_estudiante(db, est_id)
+    if not estudiante:
+        raise HTTPException(status_code=404, detail="Estudiante no encontrado")
+    return {"msg": f"Estudiante {est_id} marcado como sincronizado"}
+
 
 # -------- Asignaturas --------
 @app.post("/asignaturas/", response_model=schemas.Asignatura)
@@ -67,7 +83,11 @@ def pending_asigs(db: Session = Depends(get_db)):
 
 @app.patch("/asignaturas/{idasig}/flag")
 def update_flag_asig(idasig: int, db: Session = Depends(get_db)):
-    return crud.update_flag_asignatura(db, idasig)
+    asignatura = crud.update_flag_asignatura(db, idasig)
+    if not asignatura:
+        raise HTTPException(status_code=404, detail="Asignatura no encontrada")
+    return {"msg": f"Asignatura {idasig} marcada como sincronizada"}
+
 
 # -------- Profesores --------
 @app.post("/profesores/", response_model=schemas.Profesor)
@@ -88,7 +108,10 @@ def pending_profs(db: Session = Depends(get_db)):
 
 @app.patch("/profesores/{idprof}/flag")
 def update_flag_prof(idprof: int, db: Session = Depends(get_db)):
-    return crud.update_flag_profesor(db, idprof)
+    profesor = crud.update_flag_profesor(db, idprof)
+    if not profesor:
+        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+    return {"msg": f"Profesor {idprof} marcado como sincronizado"}
 
 # -------- Matricula --------
 @app.post("/matricula/", response_model=schemas.Matricula)
@@ -127,7 +150,10 @@ def pending_matriculas(db: Session = Depends(get_db)):
 
 @app.patch("/matricula/{id}/flag")
 def update_flag_matricula(id: int, db: Session = Depends(get_db)):
-    return crud.update_flag_matricula(db, id)
+    matricula = crud.update_flag_matricula(db, id)
+    if not matricula:
+        raise HTTPException(status_code=404, detail="Matrícula no encontrada")
+    return {"msg": f"Matrícula {id} marcada como sincronizada"}
 
 # -------- Profeciclo --------
 @app.post("/profeciclo/", response_model=schemas.Profeciclo)
@@ -148,4 +174,7 @@ def pending_profeciclos(db: Session = Depends(get_db)):
 
 @app.patch("/profeciclo/{id}/flag")
 def update_flag_profeciclo(id: int, db: Session = Depends(get_db)):
-    return crud.update_flag_profeciclo(db, id)
+    profeciclo = crud.update_flag_profeciclo(db, id)
+    if not profeciclo:
+        raise HTTPException(status_code=404, detail="Profeciclo no encontrado")
+    return {"msg": f"Profeciclo {id} marcado como sincronizado"}

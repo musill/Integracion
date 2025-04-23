@@ -34,10 +34,7 @@ def delete_estudiante(db: Session, est_id: str):
     return db_obj
 
 def get_pending_estudiantes(db: Session):
-    estudiantes = db.query(models.Estudiante).filter(
-        or_(models.Estudiante.flag_sync == False, models.Estudiante.flag_sync == None)
-    ).all()
-    return estudiantes or []  
+    return db.query(models.Estudiante).filter(models.Estudiante.flag_sync == False).all()
 
 def update_flag_estudiante(db: Session, est_id: str):
     est = db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()
@@ -45,6 +42,7 @@ def update_flag_estudiante(db: Session, est_id: str):
         est.flag_sync = True
         db.commit()
     return est
+
 
 ### -------- Asignatura --------
 def create_asignatura(db: Session, obj: schemas.AsignaturaCreate):
@@ -158,3 +156,4 @@ def update_flag_profeciclo(db: Session, id: int):
         obj.flag_sync = True
         db.commit()
     return obj
+

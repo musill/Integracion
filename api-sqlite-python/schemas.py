@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 # Estudiantes
@@ -9,7 +9,7 @@ class EstudianteBase(BaseModel):
 class EstudianteCreate(EstudianteBase): pass
 
 class Estudiante(EstudianteBase):
-    flag_sync: Optional[bool]
+    flag_sync: Optional[bool]  
     class Config:
         orm_mode = True
 

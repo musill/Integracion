@@ -5,7 +5,7 @@ from database import Base
 class Estudiante(Base):
     __tablename__ = "estudiantes"
     id = Column(String, primary_key=True, index=True)  # cedula
-    nombre = Column(String)
+    nombre = Column(String, nullable=False)
     flag_sync = Column(Boolean, default=False)
 
 class Asignatura(Base):

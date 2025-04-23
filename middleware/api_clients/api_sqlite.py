@@ -10,3 +10,37 @@ def get_pending_estudiantes():
 
 def mark_estudiante_synced(est_id):
     requests.patch(f"{BASE_URL}/estudiantes/{est_id}/flag")
+
+
+def get_pending_asignaturas():
+    return requests.get(f"{BASE_URL}/asignaturas/pending").json()
+
+def mark_asignatura_synced(idasig):
+    requests.patch(f"{BASE_URL}/asignaturas/{idasig}/flag")
+
+def create_or_update_profesor(profesor):
+    # Se puede usar PUT directamente
+    return requests.put(f"{BASE_URL}/profesores/{profesor['id']}", json=profesor)
+
+# ya existe
+def mark_profesor_synced(idprof):
+    requests.patch(f"{BASE_URL}/profesores/{idprof}/flag")
+
+def create_or_update_asignatura(asignatura):
+    return requests.put(f"{BASE_URL}/asignaturas/{asignatura['id']}", json=asignatura)
+
+
+def create_or_update_profeciclo(profeciclo):
+    return requests.put(f"{BASE_URL}/profeciclo/{profeciclo['id']}", json=profeciclo)
+
+
+def get_pending_matriculas():
+    res = requests.get(f"{BASE_URL}/matricula/pending")
+    return res.json()
+
+def mark_matricula_synced(matricula_id):
+    return requests.patch(f"{BASE_URL}/matricula/{matricula_id}/flag")
+
+
+def update_matricula_nota(idmatricula, data):
+    return requests.put(f"{BASE_URL}/matricula/{idmatricula}", json=data)

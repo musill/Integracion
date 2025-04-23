@@ -53,6 +53,15 @@ def create_asignatura(db: Session, obj: schemas.AsignaturaCreate):
 def get_asignaturas(db: Session):
     return db.query(models.Asignatura).all()
 
+def get_update_asignatura(db: Session, idasig: int, obj: schemas.AsignaturaCreate):
+    db_obj = db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
+    if db_obj:
+        for key, value in obj.dict().items():
+            setattr(db_obj, key, value)
+        db.commit()
+        db.refresh(db_obj)
+    return db_obj
+
 def get_asignatura_by_id(db: Session, idasig: int):
     return db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
 
@@ -80,6 +89,14 @@ def get_profesores(db: Session):
 def get_profesor_by_id(db: Session, idprof: int):
     return db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
 
+def get_update_profesor(db: Session, idprof: int, obj: schemas.ProfesorCreate):
+    db_obj = db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
+    if db_obj:
+        for key, value in obj.dict().items():
+            setattr(db_obj, key, value)
+        db.commit()
+        db.refresh(db_obj)
+    return db_obj
 
 def get_pending_profesores(db: Session):
     return db.query(models.Profesor).filter(models.Profesor.flag_sync == False).all()
@@ -154,3 +171,11 @@ def update_flag_profeciclo(db: Session, id: int):
         obj.flag_sync = True
         db.commit()
     return obj
+def get_update_profeciclo(db: Session, id: int, obj: schemas.ProfecicloCreate):
+    db_obj = db.query(models.Profeciclo).filter(models.Profeciclo.id == id).first()
+    if db_obj:
+        for key, value in obj.dict().items():
+            setattr(db_obj, key, value)
+        db.commit()
+        db.refresh(db_obj)
+    return db_obj

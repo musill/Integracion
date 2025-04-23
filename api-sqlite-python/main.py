@@ -85,6 +85,10 @@ def read_asig(idasig: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Asignatura no encontrada")
     return asig
 
+@app.put("/asignaturas/{idasig}", response_model=schemas.Asignatura)
+def update_asig(idasig: int, obj: schemas.AsignaturaCreate, db: Session = Depends(get_db)):
+    return crud.get_update_asignatura(db, idasig, obj)
+
 @app.patch("/asignaturas/{idasig}/flag")
 def update_flag_asig(idasig: int, db: Session = Depends(get_db)):
     asignatura = crud.update_flag_asignatura(db, idasig)
@@ -108,6 +112,10 @@ def pending_profs(db: Session = Depends(get_db)):
     for r in result:
         data.append({"idprofesor": r.idprofesor, "nombre": r.nombre, "flag_sync": r.flag_sync})
     return JSONResponse(content=data)
+
+@app.put("/profesores/{idprof}", response_model=schemas.Profesor)
+def update_prof(idprof: int, obj: schemas.ProfesorCreate, db: Session = Depends(get_db)):
+    return crud.get_update_profesor(db, idprof, obj)
 
 @app.get("/profesores/{idprof}", response_model=schemas.Profesor)
 def read_prof(idprof: int, db: Session = Depends(get_db)):
@@ -202,3 +210,7 @@ def update_flag_profeciclo(id: int, db: Session = Depends(get_db)):
     if not profeciclo:
         raise HTTPException(status_code=404, detail="Profeciclo no encontrado")
     return {"msg": f"Profeciclo {id} marcado como sincronizado"}
+
+@app.put("/profeciclo/{id}", response_model=schemas.Profeciclo)
+def update_profeciclo(id: int, obj: schemas.ProfecicloCreate, db: Session = Depends(get_db)):
+    return crud.update_profeciclo(db, id, obj)

@@ -34,7 +34,9 @@ def delete_estudiante(db: Session, est_id: str):
     return db_obj
 
 def get_pending_estudiantes(db: Session):
-    return db.query(models.Estudiante).filter(models.Estudiante.flag_sync == False).all()
+    return db.query(models.Estudiante).filter(
+        (models.Estudiante.flag_sync == False) | (models.Estudiante.flag_sync == None)
+    ).all()
 
 def update_flag_estudiante(db: Session, est_id: str):
     est = db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()

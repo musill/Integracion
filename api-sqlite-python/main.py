@@ -35,6 +35,15 @@ def update_est(est_id: str, obj: schemas.EstudianteCreate, db: Session = Depends
 def delete_est(est_id: str, db: Session = Depends(get_db)):
     return crud.delete_estudiante(db, est_id)
 
+@app.delete("/estudiantes/definitivo/{id}")
+def eliminar_definitivo(id: int, db: Session = Depends(get_db)):
+    db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
+    if db_obj:
+        db.delete(db_obj)
+        db.commit()
+    return {"mensaje": "Estudiante eliminado con éxito"}
+
+
 @app.get("/estudiantes/", response_model=list[schemas.Estudiante])
 def read_ests(db: Session = Depends(get_db)):
     return crud.get_estudiantes(db)
@@ -115,7 +124,14 @@ def pending_profs(db: Session = Depends(get_db)):
 
 @app.put("/profesores/{idprof}", response_model=schemas.Profesor)
 def update_prof(idprof: int, obj: schemas.ProfesorCreate, db: Session = Depends(get_db)):
-    return crud.get_update_profesor(db, idprof, obj)
+    db_obj = db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
+    if not db_obj:
+        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+    for key, value in obj.dict().items():
+        setattr(db_obj, key, value)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
 
 @app.get("/profesores/{idprof}", response_model=schemas.Profesor)
 def read_prof(idprof: int, db: Session = Depends(get_db)):
@@ -165,6 +181,15 @@ def update_matricula(id: int, obj: schemas.MatriculaCreate, db: Session = Depend
 @app.delete("/matricula/{id}")
 def delete_matricula(id: int, db: Session = Depends(get_db)):
     return crud.delete_matricula(db, id)
+
+@app.delete("/matriculas/definitivo/{id}")
+def eliminar_definitivo(id: int, db: Session = Depends(get_db)):
+    db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
+    if db_obj:
+        db.delete(db_obj)
+        db.commit()
+    return {"mensaje": "Matrícula eliminada definitivamente"}
+
 
 @app.get("/matricula/{id}", response_model=schemas.Matricula)
 def read_matricula(id: int, db: Session = Depends(get_db)):

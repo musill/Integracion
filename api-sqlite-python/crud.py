@@ -21,6 +21,7 @@ def update_estudiante(db: Session, est_id: str, obj: schemas.EstudianteCreate):
     if db_obj:
         for key, value in obj.dict().items():
             setattr(db_obj, key, value)
+            db_obj.flag_sync = False  
         db.commit()
         db.refresh(db_obj)
     return db_obj
@@ -28,8 +29,9 @@ def update_estudiante(db: Session, est_id: str, obj: schemas.EstudianteCreate):
 def delete_estudiante(db: Session, est_id: str):
     db_obj = db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()
     if db_obj:
-        db.delete(db_obj)
+        db_obj.flag_sync = False 
         db.commit()
+        db.refresh(db_obj)
     return db_obj
 
 def get_pending_estudiantes(db: Session):
@@ -58,6 +60,8 @@ def get_update_asignatura(db: Session, idasig: int, obj: schemas.AsignaturaCreat
     if db_obj:
         for key, value in obj.dict().items():
             setattr(db_obj, key, value)
+           
+        db_obj.flag_sync = False
         db.commit()
         db.refresh(db_obj)
     return db_obj
@@ -71,7 +75,7 @@ def get_pending_asignaturas(db: Session):
 def update_flag_asignatura(db: Session, idasig: int):
     obj = db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
     if obj:
-        obj.flag_sync = True
+        obj.flag_sync = False
         db.commit()
     return obj
 
@@ -89,14 +93,6 @@ def get_profesores(db: Session):
 def get_profesor_by_id(db: Session, idprof: int):
     return db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
 
-def get_update_profesor(db: Session, idprof: int, obj: schemas.ProfesorCreate):
-    db_obj = db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
-    if db_obj:
-        for key, value in obj.dict().items():
-            setattr(db_obj, key, value)
-        db.commit()
-        db.refresh(db_obj)
-    return db_obj
 
 def get_pending_profesores(db: Session):
     return db.query(models.Profesor).filter(models.Profesor.flag_sync == False).all()
@@ -127,6 +123,7 @@ def update_matricula(db: Session, id: int, obj: schemas.MatriculaCreate):
         if db_obj:
             for key, value in obj.dict(exclude={"notauno", "notados", "supletorio"}).items():
                 setattr(db_obj, key, value)
+            db_obj.flag_sync = False  
             db.commit()
             db.refresh(db_obj)
         return db_obj
@@ -134,8 +131,9 @@ def update_matricula(db: Session, id: int, obj: schemas.MatriculaCreate):
 def delete_matricula(db: Session, id: int): 
     db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
     if db_obj:
-        db.delete(db_obj)
+        db_obj.flag_sync = False  
         db.commit()
+        db.refresh(db_obj)
     return db_obj
 
 def get_pending_matriculas(db: Session):

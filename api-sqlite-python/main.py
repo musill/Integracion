@@ -213,4 +213,4 @@ def update_flag_profeciclo(id: int, db: Session = Depends(get_db)):
 
 @app.put("/profeciclo/{id}", response_model=schemas.Profeciclo)
 def update_profeciclo(id: int, obj: schemas.ProfecicloCreate, db: Session = Depends(get_db)):
-    return crud.update_profeciclo(db, id, obj)
+    return crud.get_update_profeciclo(db, id, obj)

@@ -26,13 +26,13 @@ def sync_profesores():
     pendientes = api_mysql.get_pending_profesores()
     for prof in pendientes:
         payload = {
-            "id": prof["IDProfesor"],           
-            "nombre": prof["Nombre"],
+            "idprof": prof["idprofesor"],  # Usar 'idprofesor' en minúsculas
+            "nombre": prof["nombre"],           # 'nombre' también en minúsculas
             "flag_sync": True
         }
         response = api_sqlite.create_or_update_profesor(payload)
         if response.status_code in [200, 201]:
-            api_mysql.mark_profesor_synced(prof["IDProfesor"])
+            api_mysql.mark_profesor_synced(prof["idprofesor"])
 
 
 
@@ -40,8 +40,8 @@ def sync_asignaturas():
     pendientes = api_mysql.get_pending_asignaturas()
     for asignatura in pendientes:
         payload = {
-            "IDAsignatura": asignatura["IDAsignatura"],
-            "Nombre": asignatura["Nombre"],
+            "idasignatura": asignatura["IDAsignatura"],
+            "nombre": asignatura["Nombre"],
             "FlagSync": True
         }
         response = api_sqlite.create_or_update_asignatura(payload)
@@ -53,12 +53,11 @@ def sync_profeciclos():
     pendientes = api_mysql.get_pending_profeciclos()
     for profeciclo in pendientes:
         payload = {
-            "ID": profeciclo["ID"],
-            "IDCiclo": profeciclo["ID"],
-            "IDProfesor": profeciclo["IDProfesor"],
-            "IDAsignatura": profeciclo["IDAsignatura"],
-            "Ciclo": profeciclo["Ciclo"],
-            "FlagSync": True
+            "id": profeciclo["ID"],
+            "ciclo": profeciclo["Ciclo"],
+            "id_profesor": profeciclo["IDProfesor"],
+            "id_asignatura": profeciclo["IDAsignatura"],      
+            "flag_sync": True
         }
         response = api_sqlite.create_or_update_profeciclo(payload)
         if response.status_code in [200, 201]:
@@ -70,8 +69,8 @@ def sync_matriculas():
     for m in pendientes:
         payload = {
             "ID": m["id"],
-            "IDEstudiante": m["idestudiante"],
-            "IDAsignatura": m["idasignatura"],
+            "IDEstudiante": m["id_estudiante"],
+            "IDAsignatura": m["id_asignatura"],
             "IDCiclo": m["id_ciclo"],
             "NotaUno": None,
             "NotaDos": None,
@@ -87,11 +86,11 @@ def sync_notas_matricula():
     pendientes = api_mysql.get_pending_matriculas()
     for m in pendientes:
         payload = {
-            "ID": m["ID"],
-            "NotaUno": m["NotaUno"],
-            "NotaDos": m["NotaDos"],
-            "Supletorio": m["Supletorio"],
-            "FlagSync": True
+            "id": m["ID"],
+            "notauno": m["NotaUno"],
+            "notados": m["NotaDos"],
+            "supletorio": m["Supletorio"],
+            "flag_sync": True
         }
         response = api_sqlite.update_matricula_nota(m["ID"], payload)
         if response.status_code in [200, 201]:

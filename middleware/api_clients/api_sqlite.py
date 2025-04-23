@@ -2,7 +2,7 @@
 
 import requests
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "http://10.79.19.94:8000"
 
 def get_pending_estudiantes():
     res = requests.get(f"{BASE_URL}/estudiantes/pending")
@@ -20,14 +20,14 @@ def mark_asignatura_synced(idasig):
 
 def create_or_update_profesor(profesor):
     # Se puede usar PUT directamente
-    return requests.put(f"{BASE_URL}/profesores/{profesor['id']}", json=profesor)
+    return requests.put(f"{BASE_URL}/profesores/{profesor['idprof']}", json=profesor)
 
 # ya existe
 def mark_profesor_synced(idprof):
     requests.patch(f"{BASE_URL}/profesores/{idprof}/flag")
 
 def create_or_update_asignatura(asignatura):
-    return requests.put(f"{BASE_URL}/asignaturas/{asignatura['id']}", json=asignatura)
+    return requests.put(f"{BASE_URL}/asignaturas/{asignatura['idasignatura']}", json=asignatura)
 
 
 def create_or_update_profeciclo(profeciclo):

@@ -21,13 +21,13 @@ const Matricula = () => {
   // Cargar datos iniciales
   useEffect(() => {
     axios
-      .get("http://127.0.0.1:8000/estudiantes/")
+      .get("http://10.79.19.94:8000/estudiantes/")
       .then((res) => setEstudiantes(res.data));
     axios
-      .get("http://127.0.0.1:8000/asignaturas/")
+      .get("http://10.79.19.94:8000/asignaturas/")
       .then((res) => setAsignaturas(res.data));
     axios
-      .get("http://127.0.0.1:8000/profeciclo/")
+      .get("http://10.79.19.94:8000/profeciclo/")
       .then((res) => setProfeciclos(res.data));
     fetchMatriculas(); // Cargar las matrículas
   }, []);
@@ -35,7 +35,7 @@ const Matricula = () => {
   // Obtener las matrículas
   const fetchMatriculas = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8000/matricula/");
+      const res = await axios.get("http://10.79.19.94:8000/matricula/");
       setMatriculas(res.data);
     } catch (error) {
       console.error("Error al obtener las matrículas:", error);
@@ -65,12 +65,12 @@ const Matricula = () => {
     try {
       if (editId) {
         // Actualizar matrícula
-        await axios.put(`http://127.0.0.1:8000/matricula/${editId}/`, payload);
+        await axios.put(`http://10.79.19.94:8000/matricula/${editId}/`, payload);
         alert("Matrícula actualizada con éxito");
         setEditId(null); // Salir del modo de edición
       } else {
         // Crear nueva matrícula
-        await axios.post("http://127.0.0.1:8000/matricula/", payload);
+        await axios.post("http://10.79.19.94:8000/matricula/", payload);
         alert("Matrícula registrada con éxito");
       }
 
@@ -106,7 +106,7 @@ const Matricula = () => {
       window.confirm("¿Estás seguro de que deseas eliminar esta matrícula?")
     ) {
       try {
-        await axios.delete(`http://127.0.0.1:8000/matricula/${id}/`);
+        await axios.delete(`http://10.79.19.94:8000/matricula/${id}/`);
         alert("Matrícula eliminada con éxito");
         fetchMatriculas(); // Actualizar la tabla de matrículas
       } catch (error) {

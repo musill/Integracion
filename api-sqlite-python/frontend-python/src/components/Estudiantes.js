@@ -4,7 +4,7 @@ const Estudiantes = () => {
   const [estudiantes, setEstudiantes] = useState([]); // Estado para almacenar los estudiantes
   const [formData, setFormData] = useState({ id: "", nombre: "" }); // Estado para el formulario
 
-  const apiBaseUrl = "http://127.0.0.1:8000"; // URL base del backend
+  const apiBaseUrl = "http://10.79.19.94:8000"; // URL base del backend
 
   // Obtener estudiantes desde la base de datos
   const fetchEstudiantes = async () => {

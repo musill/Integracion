@@ -36,3 +36,8 @@ def mark_profeciclo_synced(idprofeciclo):
 
 def create_or_update_matricula(matricula):
     return requests.put(f"{BASE_URL}/matricula/{matricula['id']}", json=matricula)
+
+def get_pending_matriculas():
+    res = requests.get(f"{BASE_URL}/matricula/pendientes")
+    res.raise_for_status()
+    return res.json()

@@ -89,74 +89,104 @@ const Estudiantes = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Estudiantes</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="id"
-          placeholder="Cédula"
-          value={formData.id}
-          onChange={handleChange}
-          maxLength={10}
-          onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^0-9]/g, ""); // Solo números
-          }}
-          required
-        />
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Nombres completos"
-          value={formData.nombre}
-          onChange={handleChange}
-          maxLength={50}
-          onInput={(e) => {
-            e.target.value = e.target.value.replace(/[^a-zA-ZñÑ\s]/g, ""); // Solo letras y espacios
-          }}
-          required
-        />
-        <button type="submit">Crear</button>
+    <div className="container mt-5">
+      <h2 className="text-center text-danger mb-4">Estudiantes</h2>
+      <div className="table-wrapper">
+      <form onSubmit={handleSubmit} className="row g-3 mb-5 border p-4 rounded shadow-sm bg-light">
+        <div className="col-md-4">
+          <input
+            type="text"
+            name="id"
+            className="form-control"
+            placeholder="Cédula"
+            value={formData.id}
+            onChange={handleChange}
+            maxLength={10}
+            onInput={(e) => {
+              e.target.value = e.target.value.replace(/[^0-9]/g, "");
+            }}
+            required
+          />
+        </div>
+        <div className="col-md-6">
+          <input
+            type="text"
+            name="nombre"
+            className="form-control"
+            placeholder="Nombres completos"
+            value={formData.nombre}
+            onChange={handleChange}
+            maxLength={50}
+            onInput={(e) => {
+              e.target.value = e.target.value.replace(/[^a-zA-ZñÑ\s]/g, "");
+            }}
+            required
+          />
+        </div>
+        <div className="col-md-2">
+          <button type="submit" className="btn btn-primary w-100">
+            Crear
+          </button>
+        </div>
       </form>
-      <table>
-        <thead>
+      </div>
+      <div className="table-wrapper">
+      <table className="table table-bordered table-hover text-center">
+        <thead className="table-dark">
           <tr>
-            <th>Cédula</th>
-            <th>Nombre</th>
-            <th>Acciones</th>
+            <th style={{width:"120px"}}>Cédula</th>
+            <th style={{width:"300px"}}>Nombre</th>
+            <th style={{width:"50px"}}>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {estudiantes.map((est) => (
             <tr key={est.id}>
-              <td>
+              <td style={{width:"120px"}}> 
                 <input
                   type="text"
                   value={est.id}
                   readOnly
-                  style={{ border: "none", background: "transparent" }}
+                  className="form-control-plaintext text-center"
                 />
               </td>
-              <td>
+              <td style={{width:"300px"}}> 
                 <input
                   type="text"
                   value={est.nombre}
                   onChange={(e) => {
                     const updatedEstudiantes = estudiantes.map((item) =>
-                      item.id === est.id ? { ...item, nombre: e.target.value } : item
+                      item.id === est.id
+                        ? { ...item, nombre: e.target.value }
+                        : item
                     );
                     setEstudiantes(updatedEstudiantes);
                   }}
+                  className="form-control text-center"
                 />
               </td>
-              <td>
-                <button onClick={() => updateEstudiante(est.id)}>Actualizar</button>
-                <button onClick={() => deleteEstudiante(est.id)}>Eliminar</button>
+              <td style={{width:"40px"}}> 
+                <div className="d-flex justify-content-center gap-2">
+                  <button
+                    className="btn btn-outline-success btn-sm"
+                    onClick={() => updateEstudiante(est.id)}
+                  >
+                    <i className="bi bi-pencil-square"></i>
+                  </button>
+
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => deleteEstudiante(est.id)}
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

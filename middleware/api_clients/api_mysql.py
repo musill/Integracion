@@ -2,8 +2,8 @@
 
 import requests
 
-# BASE_URL = "http://localhost:8080"
-BASE_URL = "http://10.79.17.241:8080"
+BASE_URL = "http://localhost:8080"
+#BASE_URL = "http://10.79.17.241:8080"
 def create_estudiante_mysql(estudiante):
     return requests.post(f"{BASE_URL}/estudiantes", json=estudiante)
 

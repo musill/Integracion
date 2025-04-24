@@ -26,13 +26,14 @@ def sync_profesores():
     pendientes = api_mysql.get_pending_profesores()
     for prof in pendientes:
         payload = {
-            "idprof": prof["idprofesor"],  # Usar 'idprofesor' en minúsculas
-            "nombre": prof["nombre"],           # 'nombre' también en minúsculas
+            "idprof": prof["IDProfesor"],     # usar la clave exacta
+            "nombre": prof["Nombre"],
             "flag_sync": True
         }
         response = api_sqlite.create_or_update_profesor(payload)
         if response.status_code in [200, 201]:
-            api_mysql.mark_profesor_synced(prof["idprofesor"])
+            api_mysql.mark_profesor_synced(prof["IDProfesor"])
+
 
 
 

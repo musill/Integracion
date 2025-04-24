@@ -2,8 +2,8 @@
 
 import requests
 
-BASE_URL = "http://10.79.19.94:8000"
-
+#BASE_URL = "http://10.79.19.94:8000"
+BASE_URL = "http://localhost:8000"
 def get_pending_estudiantes():
     res = requests.get(f"{BASE_URL}/estudiantes/pending")
     return res.json()

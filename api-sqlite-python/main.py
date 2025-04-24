@@ -129,9 +129,19 @@ def update_prof(idprof: int, obj: schemas.ProfesorCreate, db: Session = Depends(
         raise HTTPException(status_code=404, detail="Profesor no encontrado")
     for key, value in obj.dict().items():
         setattr(db_obj, key, value)
+    db_obj.flag_sync = "True"  
     db.commit()
     db.refresh(db_obj)
     return db_obj
+
+@app.delete("/profesores/{idprof}")
+def delete_prof(idprof: int, db: Session = Depends(get_db)):
+    db_obj = db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
+    if not db_obj:
+        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+    db.delete(db_obj)
+    db.commit()
+    return {"mensaje": "Profesor eliminado con éxito"}
 
 @app.get("/profesores/{idprof}", response_model=schemas.Profesor)
 def read_prof(idprof: int, db: Session = Depends(get_db)):

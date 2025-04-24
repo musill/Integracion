@@ -21,6 +21,7 @@ def update_estudiante(db: Session, est_id: str, obj: schemas.EstudianteCreate):
     if db_obj:
         for key, value in obj.dict().items():
             setattr(db_obj, key, value)
+            db_obj.flag_sync = False  
         db.commit()
         db.refresh(db_obj)
     return db_obj
@@ -28,8 +29,9 @@ def update_estudiante(db: Session, est_id: str, obj: schemas.EstudianteCreate):
 def delete_estudiante(db: Session, est_id: str):
     db_obj = db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()
     if db_obj:
-        db.delete(db_obj)
+        db_obj.flag_sync = False 
         db.commit()
+        db.refresh(db_obj)
     return db_obj
 
 def get_pending_estudiantes(db: Session):
@@ -53,6 +55,17 @@ def create_asignatura(db: Session, obj: schemas.AsignaturaCreate):
 def get_asignaturas(db: Session):
     return db.query(models.Asignatura).all()
 
+def get_update_asignatura(db: Session, idasig: int, obj: schemas.AsignaturaCreate):
+    db_obj = db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
+    if db_obj:
+        for key, value in obj.dict().items():
+            setattr(db_obj, key, value)
+           
+        db_obj.flag_sync = False
+        db.commit()
+        db.refresh(db_obj)
+    return db_obj
+
 def get_asignatura_by_id(db: Session, idasig: int):
     return db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
 
@@ -62,7 +75,7 @@ def get_pending_asignaturas(db: Session):
 def update_flag_asignatura(db: Session, idasig: int):
     obj = db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
     if obj:
-        obj.flag_sync = True
+        obj.flag_sync = False
         db.commit()
     return obj
 
@@ -110,6 +123,7 @@ def update_matricula(db: Session, id: int, obj: schemas.MatriculaCreate):
         if db_obj:
             for key, value in obj.dict(exclude={"notauno", "notados", "supletorio"}).items():
                 setattr(db_obj, key, value)
+            db_obj.flag_sync = False  
             db.commit()
             db.refresh(db_obj)
         return db_obj
@@ -117,8 +131,9 @@ def update_matricula(db: Session, id: int, obj: schemas.MatriculaCreate):
 def delete_matricula(db: Session, id: int): 
     db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
     if db_obj:
-        db.delete(db_obj)
+        db_obj.flag_sync = False  
         db.commit()
+        db.refresh(db_obj)
     return db_obj
 
 def get_pending_matriculas(db: Session):
@@ -154,3 +169,11 @@ def update_flag_profeciclo(db: Session, id: int):
         obj.flag_sync = True
         db.commit()
     return obj
+def get_update_profeciclo(db: Session, id: int, obj: schemas.ProfecicloCreate):
+    db_obj = db.query(models.Profeciclo).filter(models.Profeciclo.id == id).first()
+    if db_obj:
+        for key, value in obj.dict().items():
+            setattr(db_obj, key, value)
+        db.commit()
+        db.refresh(db_obj)
+    return db_obj

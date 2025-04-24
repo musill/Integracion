@@ -35,6 +35,15 @@ def update_est(est_id: str, obj: schemas.EstudianteCreate, db: Session = Depends
 def delete_est(est_id: str, db: Session = Depends(get_db)):
     return crud.delete_estudiante(db, est_id)
 
+@app.delete("/estudiantes/definitivo/{id}")
+def eliminar_definitivo(id: int, db: Session = Depends(get_db)):
+    db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
+    if db_obj:
+        db.delete(db_obj)
+        db.commit()
+    return {"mensaje": "Estudiante eliminado con éxito"}
+
+
 @app.get("/estudiantes/", response_model=list[schemas.Estudiante])
 def read_ests(db: Session = Depends(get_db)):
     return crud.get_estudiantes(db)
@@ -85,6 +94,10 @@ def read_asig(idasig: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Asignatura no encontrada")
     return asig
 
+@app.put("/asignaturas/{idasig}", response_model=schemas.Asignatura)
+def update_asig(idasig: int, obj: schemas.AsignaturaCreate, db: Session = Depends(get_db)):
+    return crud.get_update_asignatura(db, idasig, obj)
+
 @app.patch("/asignaturas/{idasig}/flag")
 def update_flag_asig(idasig: int, db: Session = Depends(get_db)):
     asignatura = crud.update_flag_asignatura(db, idasig)
@@ -108,6 +121,25 @@ def pending_profs(db: Session = Depends(get_db)):
     for r in result:
         data.append({"idprofesor": r.idprofesor, "nombre": r.nombre, "flag_sync": r.flag_sync})
     return JSONResponse(content=data)
+
+@app.put("/profesores/{idprof}", response_model=schemas.Profesor)
+def update_prof(idprof: int, obj: schemas.ProfesorCreate, db: Session = Depends(get_db)):
+    db_obj = db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
+    if not db_obj:
+        # Crear si no existe
+        new_prof = models.Profesor(idprofesor=idprof, **obj.dict(), flag_sync=False)
+        db.add(new_prof)
+        db.commit()
+        db.refresh(new_prof)
+        return new_prof
+    # Actualizar si existe
+    for key, value in obj.dict().items():
+        setattr(db_obj, key, value)
+    db_obj.flag_sync = False  # Marca como no sincronizado
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
 
 @app.get("/profesores/{idprof}", response_model=schemas.Profesor)
 def read_prof(idprof: int, db: Session = Depends(get_db)):
@@ -158,6 +190,15 @@ def update_matricula(id: int, obj: schemas.MatriculaCreate, db: Session = Depend
 def delete_matricula(id: int, db: Session = Depends(get_db)):
     return crud.delete_matricula(db, id)
 
+@app.delete("/matriculas/definitivo/{id}")
+def eliminar_definitivo(id: int, db: Session = Depends(get_db)):
+    db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
+    if db_obj:
+        db.delete(db_obj)
+        db.commit()
+    return {"mensaje": "Matrícula eliminada definitivamente"}
+
+
 @app.get("/matricula/{id}", response_model=schemas.Matricula)
 def read_matricula(id: int, db: Session = Depends(get_db)):
     mat = crud.get_matricula_by_id(db, id)
@@ -202,3 +243,7 @@ def update_flag_profeciclo(id: int, db: Session = Depends(get_db)):
     if not profeciclo:
         raise HTTPException(status_code=404, detail="Profeciclo no encontrado")
     return {"msg": f"Profeciclo {id} marcado como sincronizado"}
+
+@app.put("/profeciclo/{id}", response_model=schemas.Profeciclo)
+def update_profeciclo(id: int, obj: schemas.ProfecicloCreate, db: Session = Depends(get_db)):
+    return crud.get_update_profeciclo(db, id, obj)

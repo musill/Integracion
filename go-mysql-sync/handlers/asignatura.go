@@ -30,7 +30,7 @@ func GetAsignaturas(c *gin.Context) {
 func GetAsignaturaByID(c *gin.Context) {
 	id := c.Param("id")
 	var asignatura models.Asignatura
-	if err := database.DB.First(&asignatura, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&asignatura, "id_asignatura = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
 		return
 	}
@@ -41,7 +41,7 @@ func GetAsignaturaByID(c *gin.Context) {
 func UpdateAsignatura(c *gin.Context) {
 	id := c.Param("id")
 	var existing models.Asignatura
-	if err := database.DB.First(&existing, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&existing, "id_asignatura = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
 		return
 	}
@@ -62,7 +62,7 @@ func UpdateAsignatura(c *gin.Context) {
 func DeleteAsignatura(c *gin.Context) {
 	id := c.Param("id")
 	var asignatura models.Asignatura
-	if err := database.DB.First(&asignatura, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&asignatura, "id_asignatura = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
 		return
 	}
@@ -79,13 +79,14 @@ func GetAsignaturasPendientes(c *gin.Context) {
 
 // Marcar asignatura como sincronizada (equivalente a update_flag_asignatura)
 func UpdateFlagAsignatura(c *gin.Context) {
-	id := c.Param("id")
-	var asignatura models.Asignatura
-	if err := database.DB.First(&asignatura, "id = ?", id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
-		return
-	}
-	asignatura.FlagSync = true
-	database.DB.Save(&asignatura)
-	c.JSON(http.StatusOK, asignatura)
+    id := c.Param("id")
+    var asignatura models.Asignatura
+    if err := database.DB.First(&asignatura, "id_asignatura = ?", id).Error; err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
+        return
+    }
+    asignatura.FlagSync = true
+    database.DB.Save(&asignatura)
+    c.JSON(http.StatusOK, asignatura)
 }
+

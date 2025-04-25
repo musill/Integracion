@@ -19,7 +19,8 @@ def sync_estudiantes():
             response = api_mysql.create_estudiante_mysql(payload)
 
         if response.status_code in (200, 201):
-            api_sqlite.mark_estudiante_synced(est["id"])
+                api_sqlite.mark_estudiante_synced(est["id"])
+                api_mysql.mark_estudiante_synced(est["id"]) 
 
 
 def sync_profesores():
@@ -43,44 +44,48 @@ def sync_asignaturas():
         payload = {
             "idasignatura": asignatura["IDAsignatura"],
             "nombre": asignatura["Nombre"],
-            "FlagSync": True
+            
         }
         response = api_sqlite.create_or_update_asignatura(payload)
         if response.status_code in [200, 201]:
             api_mysql.mark_asignatura_synced(asignatura["IDAsignatura"])
+            api_sqlite.mark_asignatura_synced(asignatura["IDAsignatura"])
 
 
 def sync_profeciclos():
     pendientes = api_mysql.get_pending_profeciclos()
-    for profeciclo in pendientes:
+    for profe in pendientes:
         payload = {
-            "id": profeciclo["ID"],
-            "ciclo": profeciclo["Ciclo"],
-            "id_profesor": profeciclo["IDProfesor"],
-            "id_asignatura": profeciclo["IDAsignatura"],      
-            "flag_sync": True
+            "id": profe["ID"],
+            "ciclo": profe["Ciclo"],
+            "id_profesor": profe["IDProfesor"],
+            "id_asignatura": profe["IDAsignatura"]
         }
         response = api_sqlite.create_or_update_profeciclo(payload)
         if response.status_code in [200, 201]:
-            api_mysql.mark_profeciclo_synced(profeciclo["ID"])
+            api_mysql.mark_profeciclo_synced(profe["ID"])
+            api_sqlite.mark_profeciclo_synced(profe["ID"])
+
+
 
 
 def sync_matriculas():
     pendientes = api_sqlite.get_pending_matriculas()
     for m in pendientes:
         payload = {
-            "ID": m["id"],
+            "id": m["id"],  # 👈 ¡esto es lo que faltaba!
             "IDEstudiante": m["id_estudiante"],
             "IDAsignatura": m["id_asignatura"],
             "IDCiclo": m["id_ciclo"],
-            "NotaUno": None,
-            "NotaDos": None,
-            "Supletorio": None,
+            "NotaUno": m["notauno"],
+            "NotaDos": m["notados"],
+            "Supletorio": m["supletorio"],
             "FlagSync": True
         }
         response = api_mysql.create_or_update_matricula(payload)
         if response.status_code in [200, 201]:
             api_sqlite.mark_matricula_synced(m["id"])
+            api_mysql.mark_matricula_synced(m["id"])
 
 
 def sync_notas_matricula():

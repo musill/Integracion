@@ -10,6 +10,8 @@ def get_pending_estudiantes():
 
 def mark_estudiante_synced(est_id):
     requests.patch(f"{BASE_URL}/estudiantes/{est_id}/flag")
+def create_or_update_asignatura(asignatura):
+    return requests.put(f"{BASE_URL}/asignaturas/{asignatura['idasignatura']}", json=asignatura)
 
 
 def get_pending_asignaturas():
@@ -26,12 +28,12 @@ def create_or_update_profesor(profesor):
 def mark_profesor_synced(idprof):
     requests.patch(f"{BASE_URL}/profesores/{idprof}/flag")
 
-def create_or_update_asignatura(asignatura):
-    return requests.put(f"{BASE_URL}/asignaturas/{asignatura['idasignatura']}", json=asignatura)
-
-
 def create_or_update_profeciclo(profeciclo):
     return requests.put(f"{BASE_URL}/profeciclo/{profeciclo['id']}", json=profeciclo)
+
+def mark_profeciclo_synced(id_):
+    return requests.patch(f"{BASE_URL}/profeciclo/{id_}/flag")
+
 
 
 def get_pending_matriculas():
@@ -43,4 +45,4 @@ def mark_matricula_synced(matricula_id):
 
 
 def update_matricula_nota(idmatricula, data):
-    return requests.put(f"{BASE_URL}/matricula/{idmatricula}", json=data)
+    return requests.put(f"{BASE_URL}/matricula/{idmatricula}/notas", json=data)

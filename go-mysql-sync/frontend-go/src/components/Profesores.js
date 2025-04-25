@@ -15,7 +15,15 @@ const Profesores = () => {
   const fetchProfesores = async () => {
     try {
       const res = await axios.get(`${apiBaseUrl}/profesores`);
-      setProfesores(res.data);
+      // Adaptar los datos, ya que el backend devuelve "IDProfesor", "Nombre", etc.
+      const adaptados = res.data.map((p) => ({
+        id: p.IDProfesor,         // Para React key
+        idprofesor: p.IDProfesor, // Convertir a minúscula, como usa el frontend
+        nombre: p.Nombre,         // Convertir a minúscula
+        flag_sync: p.FlagSync,
+      }));
+      setProfesores(adaptados);
+      // Opcional: console.log("Profesores adaptados:", adaptados);
     } catch (error) {
       console.error("Error al obtener profesores:", error);
     }
@@ -32,6 +40,12 @@ const Profesores = () => {
       nombre: formData.nombre,
     };
 
+    // Validación básica
+    if (!payload.idprofesor || !payload.nombre.trim()) {
+      alert("Todos los campos son obligatorios.");
+      return;
+    }
+
     try {
       if (editId) {
         await axios.put(`${apiBaseUrl}/profesores/${editId}`, payload);
@@ -41,7 +55,6 @@ const Profesores = () => {
         await axios.post(`${apiBaseUrl}/profesores`, payload);
         alert("Profesor registrado");
       }
-
       setFormData({ idprofesor: "", nombre: "" });
       fetchProfesores();
     } catch (error) {
@@ -128,12 +141,12 @@ const Profesores = () => {
         </thead>
         <tbody>
           {profesores.map((prof) => (
-            <tr key={prof.idprofesor}>
+            <tr key={prof.id}>
               <td>{prof.idprofesor}</td>
               <td>
                 <input
                   type="text"
-                  value={prof.nombre}
+                  value={prof.nombre || ""}
                   className="form-control text-center"
                   onChange={(e) => {
                     const updated = profesores.map((item) =>

@@ -3,9 +3,10 @@ import axios from "axios";
 
 const Estudiantes = () => {
   const [estudiantes, setEstudiantes] = useState([]);
-  const [formData, setFormData] = useState({ id: "", nombre: "" });
+  const [formData, setFormData] = useState({ ID: "", Nombre: "" });
+  const [editID, setEditID] = useState(null);
 
-  const apiBaseUrl = "http://localhost:8080"; // URL del backend Go
+  const apiBaseUrl = "http://localhost:8080";
 
   const fetchEstudiantes = async () => {
     try {
@@ -20,6 +21,10 @@ const Estudiantes = () => {
     fetchEstudiantes();
   }, []);
 
+  useEffect(() => {
+    console.log("Estudiantes cargados:", estudiantes);
+  }, [estudiantes]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -27,22 +32,25 @@ const Estudiantes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${apiBaseUrl}/estudiantes`, formData);
-      setFormData({ id: "", nombre: "" });
+      if (editID) {
+        await axios.put(`${apiBaseUrl}/estudiantes/${editID}`, formData);
+        setEditID(null);
+      } else {
+        await axios.post(`${apiBaseUrl}/estudiantes`, formData);
+      }
+      setFormData({ ID: "", Nombre: "" });
       fetchEstudiantes();
     } catch (error) {
-      console.error("Error al crear el estudiante:", error);
+      console.error("Error al guardar:", error);
     }
   };
 
-  const updateEstudiante = async (id) => {
-    const estudiante = estudiantes.find((e) => e.id === id);
-    try {
-      await axios.put(`${apiBaseUrl}/estudiantes/${id}`, estudiante);
-      fetchEstudiantes();
-    } catch (error) {
-      console.error("Error al actualizar:", error);
-    }
+  const handleEdit = (estudiante) => {
+    setEditID(estudiante.ID);
+    setFormData({
+      ID: estudiante.ID,
+      Nombre: estudiante.Nombre,
+    });
   };
 
   const deleteEstudiante = async (id) => {
@@ -62,26 +70,27 @@ const Estudiantes = () => {
         <div className="col-md-4">
           <input
             type="text"
-            name="id"
+            name="ID"
             placeholder="Cédula"
             className="form-control"
             maxLength={10}
-            value={formData.id}
+            value={formData.ID}
             onChange={handleChange}
             onInput={(e) =>
               (e.target.value = e.target.value.replace(/[^0-9]/g, ""))
             }
             required
+            disabled={editID !== null} // para evitar cambiar ID al editar
           />
         </div>
         <div className="col-md-6">
           <input
             type="text"
-            name="nombre"
+            name="Nombre"
             placeholder="Nombres completos"
             className="form-control"
             maxLength={50}
-            value={formData.nombre}
+            value={formData.Nombre}
             onChange={handleChange}
             onInput={(e) =>
               (e.target.value = e.target.value.replace(/[^a-zA-ZñÑ\s]/g, ""))
@@ -91,7 +100,15 @@ const Estudiantes = () => {
         </div>
         <div className="col-md-2">
           <button type="submit" className="btn btn-primary w-100">
-            <i className="bi bi-plus-circle me-1"></i> Crear
+            {editID ? (
+              <>
+                <i className="bi bi-pencil-square me-1"></i> Actualizar
+              </>
+            ) : (
+              <>
+                <i className="bi bi-plus-circle me-1"></i> Crear
+              </>
+            )}
           </button>
         </div>
       </form>
@@ -106,24 +123,24 @@ const Estudiantes = () => {
         </thead>
         <tbody>
           {estudiantes.map((est) => (
-            <tr key={est.id}>
+            <tr key={est.ID}>
               <td>
                 <input
                   type="text"
                   readOnly
-                  value={est.id}
+                  value={est.ID}
                   className="form-control-plaintext text-center"
                 />
               </td>
               <td>
                 <input
                   type="text"
-                  value={est.nombre}
+                  value={est.Nombre || ""}
                   className="form-control text-center"
                   onChange={(e) => {
                     const updated = estudiantes.map((item) =>
-                      item.id === est.id
-                        ? { ...item, nombre: e.target.value }
+                      item.ID === est.ID
+                        ? { ...item, Nombre: e.target.value }
                         : item
                     );
                     setEstudiantes(updated);
@@ -134,13 +151,13 @@ const Estudiantes = () => {
                 <div className="d-flex justify-content-center gap-2">
                   <button
                     className="btn btn-success btn-sm"
-                    onClick={() => updateEstudiante(est.id)}
+                    onClick={() => handleEdit(est)}
                   >
                     <i className="bi bi-pencil-square"></i>
                   </button>
                   <button
                     className="btn btn-danger btn-sm"
-                    onClick={() => deleteEstudiante(est.id)}
+                    onClick={() => deleteEstudiante(est.ID)}
                   >
                     <i className="bi bi-trash"></i>
                   </button>

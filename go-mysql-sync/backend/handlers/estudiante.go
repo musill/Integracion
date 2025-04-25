@@ -90,3 +90,4 @@ func UpdateFlagEstudiante(c *gin.Context) {
 	database.DB.Save(&est)
 	c.JSON(http.StatusOK, est)
 }
+

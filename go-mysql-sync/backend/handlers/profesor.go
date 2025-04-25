@@ -8,7 +8,7 @@ import (
 	"go-mysql-sync/models"
 )
 
-// Crear profesor (equivalente a create_profesor)
+// Crear profesor
 func CreateProfesor(c *gin.Context) {
 	var input models.Profesor
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -19,29 +19,29 @@ func CreateProfesor(c *gin.Context) {
 	c.JSON(http.StatusOK, input)
 }
 
-// Obtener todos los profesores (equivalente a get_profesores)
+// Obtener todos los profesores
 func GetProfesores(c *gin.Context) {
 	var profesores []models.Profesor
 	database.DB.Find(&profesores)
 	c.JSON(http.StatusOK, profesores)
 }
 
-// Obtener profesor por ID (equivalente a get_profesor_by_id)
+// Obtener profesor por ID
 func GetProfesorByID(c *gin.Context) {
 	id := c.Param("id")
 	var profesor models.Profesor
-	if err := database.DB.First(&profesor, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&profesor, "id_profesor = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profesor no encontrado"})
 		return
 	}
 	c.JSON(http.StatusOK, profesor)
 }
 
-// Actualizar profesor (equivalente a update_profesor)
+// Actualizar profesor
 func UpdateProfesor(c *gin.Context) {
 	id := c.Param("id")
 	var existing models.Profesor
-	if err := database.DB.First(&existing, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&existing, "id_profesor = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profesor no encontrado"})
 		return
 	}
@@ -58,11 +58,11 @@ func UpdateProfesor(c *gin.Context) {
 	c.JSON(http.StatusOK, existing)
 }
 
-// Eliminar profesor (equivalente a delete_profesor)
+// Eliminar profesor
 func DeleteProfesor(c *gin.Context) {
 	id := c.Param("id")
 	var profesor models.Profesor
-	if err := database.DB.First(&profesor, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&profesor, "id_profesor = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profesor no encontrado"})
 		return
 	}
@@ -70,18 +70,18 @@ func DeleteProfesor(c *gin.Context) {
 	c.JSON(http.StatusOK, profesor)
 }
 
-// Obtener profesores pendientes de sincronización (equivalente a get_pending_profesores)
+// Obtener profesores pendientes
 func GetProfesoresPendientes(c *gin.Context) {
 	var profesores []models.Profesor
 	database.DB.Where("flag_sync = ?", false).Find(&profesores)
 	c.JSON(http.StatusOK, profesores)
 }
 
-// Marcar profesor como sincronizado (equivalente a update_flag_profesor)
+// Marcar profesor como sincronizado
 func UpdateFlagProfesor(c *gin.Context) {
 	id := c.Param("id")
 	var profesor models.Profesor
-	if err := database.DB.First(&profesor, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&profesor, "id_profesor = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profesor no encontrado"})
 		return
 	}

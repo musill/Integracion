@@ -6,12 +6,10 @@ const ProfeCiclos = () => {
   const [profesores, setProfesores] = useState([]);
   const [asignaturas, setAsignaturas] = useState([]);
   const [formData, setFormData] = useState({
-    id: "",
     ciclo: "",
     idprofesor: "",
     idasignatura: "",
   });
-
   const [editId, setEditId] = useState(null);
   const apiBaseUrl = "http://localhost:8080";
 
@@ -21,11 +19,13 @@ const ProfeCiclos = () => {
 
   const fetchAll = async () => {
     try {
-      const res = await axios.get(`${apiBaseUrl}/profeciclo`);
-      setProfeCiclos(res.data);
-      const profesoresRes = await axios.get(`${apiBaseUrl}/profesores`);
+      const [ciclosRes, profesoresRes, asignaturasRes] = await Promise.all([
+        axios.get(`${apiBaseUrl}/profeciclo`),
+        axios.get(`${apiBaseUrl}/profesores`),
+        axios.get(`${apiBaseUrl}/asignaturas`),
+      ]);
+      setProfeCiclos(ciclosRes.data);
       setProfesores(profesoresRes.data);
-      const asignaturasRes = await axios.get(`${apiBaseUrl}/asignaturas`);
       setAsignaturas(asignaturasRes.data);
     } catch (error) {
       console.error("Error al cargar datos:", error);
@@ -38,13 +38,11 @@ const ProfeCiclos = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const payload = {
       ciclo: formData.ciclo,
-      idprofesor: parseInt(formData.idprofesor),
-      idasignatura: parseInt(formData.idasignatura),
+      IDProfesor: parseInt(formData.idprofesor),
+      IDAsignatura: parseInt(formData.idasignatura),
     };
-
     try {
       if (editId) {
         await axios.put(`${apiBaseUrl}/profeciclo/${editId}`, payload);
@@ -54,22 +52,20 @@ const ProfeCiclos = () => {
         await axios.post(`${apiBaseUrl}/profeciclo`, payload);
         alert("Ciclo registrado");
       }
-
-      setFormData({ id: "", ciclo: "", idprofesor: "", idasignatura: "" });
+      setFormData({ ciclo: "", idprofesor: "", idasignatura: "" });
       fetchAll();
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error al guardar:", error);
     }
   };
 
   const handleEdit = (p) => {
-    setEditId(p.id);
     setFormData({
-      id: p.id,
-      ciclo: p.ciclo,
-      idprofesor: p.idprofesor,
-      idasignatura: p.idasignatura,
+      ciclo: p.Ciclo,
+      idprofesor: p.IDProfesor.toString(),
+      idasignatura: p.IDAsignatura.toString(),
     });
+    setEditId(p.ID);
   };
 
   const handleDelete = async (id) => {
@@ -112,8 +108,8 @@ const ProfeCiclos = () => {
           >
             <option value="">Seleccione Profesor</option>
             {profesores.map((p) => (
-              <option key={p.idprofesor} value={p.idprofesor}>
-                {p.nombre}
+              <option key={p.IDProfesor} value={p.IDProfesor}>
+                {p.Nombre}
               </option>
             ))}
           </select>
@@ -128,8 +124,8 @@ const ProfeCiclos = () => {
           >
             <option value="">Seleccione Asignatura</option>
             {asignaturas.map((a) => (
-              <option key={a.idasignatura} value={a.idasignatura}>
-                {a.nombre}
+              <option key={a.IDAsignatura} value={a.IDAsignatura}>
+                {a.Nombre}
               </option>
             ))}
           </select>
@@ -163,17 +159,21 @@ const ProfeCiclos = () => {
         </thead>
         <tbody>
           {profeciclos.map((p) => (
-            <tr key={p.id}>
-              <td>{p.id}</td>
-              <td>{p.ciclo}</td>
-              <td>{profesores.find((pro) => pro.idprofesor === p.idprofesor)?.nombre || "?"}</td>
-              <td>{asignaturas.find((a) => a.idasignatura === p.idasignatura)?.nombre || "?"}</td>
+            <tr key={p.ID}>
+              <td>{p.ID}</td>
+              <td>{p.Ciclo}</td>
+              <td>
+                {profesores.find((pro) => pro.IDProfesor === p.IDProfesor)?.Nombre || "?"}
+              </td>
+              <td>
+                {asignaturas.find((a) => a.IDAsignatura === p.IDAsignatura)?.Nombre || "?"}
+              </td>
               <td>
                 <div className="d-flex justify-content-center gap-2">
                   <button className="btn btn-success btn-sm" onClick={() => handleEdit(p)}>
                     <i className="bi bi-pencil-square"></i>
                   </button>
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p.id)}>
+                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(p.ID)}>
                     <i className="bi bi-trash"></i>
                   </button>
                 </div>

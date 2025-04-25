@@ -2,13 +2,12 @@ package handlers
 
 import (
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"go-mysql-sync/database"
 	"go-mysql-sync/models"
 )
 
-// Crear asignatura (equivalente a create_asignatura)
+// Crear asignatura
 func CreateAsignatura(c *gin.Context) {
 	var input models.Asignatura
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -19,29 +18,29 @@ func CreateAsignatura(c *gin.Context) {
 	c.JSON(http.StatusOK, input)
 }
 
-// Obtener todas las asignaturas (equivalente a get_asignaturas)
+// Obtener todas las asignaturas
 func GetAsignaturas(c *gin.Context) {
 	var asignaturas []models.Asignatura
 	database.DB.Find(&asignaturas)
 	c.JSON(http.StatusOK, asignaturas)
 }
 
-// Obtener asignatura por ID (equivalente a get_asignatura_by_id)
+// Obtener asignatura por ID
 func GetAsignaturaByID(c *gin.Context) {
 	id := c.Param("id")
 	var asignatura models.Asignatura
-	if err := database.DB.First(&asignatura, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&asignatura, "id_asignatura = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
 		return
 	}
 	c.JSON(http.StatusOK, asignatura)
 }
 
-// Actualizar asignatura (equivalente a update_asignatura)
+// Actualizar asignatura
 func UpdateAsignatura(c *gin.Context) {
 	id := c.Param("id")
 	var existing models.Asignatura
-	if err := database.DB.First(&existing, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&existing, "id_asignatura = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
 		return
 	}
@@ -58,11 +57,11 @@ func UpdateAsignatura(c *gin.Context) {
 	c.JSON(http.StatusOK, existing)
 }
 
-// Eliminar asignatura (equivalente a delete_asignatura)
+// Eliminar asignatura
 func DeleteAsignatura(c *gin.Context) {
 	id := c.Param("id")
 	var asignatura models.Asignatura
-	if err := database.DB.First(&asignatura, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&asignatura, "id_asignatura = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
 		return
 	}
@@ -70,18 +69,18 @@ func DeleteAsignatura(c *gin.Context) {
 	c.JSON(http.StatusOK, asignatura)
 }
 
-// Obtener asignaturas pendientes de sincronización (equivalente a get_pending_asignaturas)
+// Obtener asignaturas pendientes
 func GetAsignaturasPendientes(c *gin.Context) {
 	var asignaturas []models.Asignatura
 	database.DB.Where("flag_sync = ?", false).Find(&asignaturas)
 	c.JSON(http.StatusOK, asignaturas)
 }
 
-// Marcar asignatura como sincronizada (equivalente a update_flag_asignatura)
+// Marcar como sincronizada
 func UpdateFlagAsignatura(c *gin.Context) {
 	id := c.Param("id")
 	var asignatura models.Asignatura
-	if err := database.DB.First(&asignatura, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&asignatura, "id_asignatura = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asignatura no encontrada"})
 		return
 	}

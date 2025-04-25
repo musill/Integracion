@@ -5,6 +5,8 @@ import (
     "go-mysql-sync/database"
     "go-mysql-sync/models"
     "go-mysql-sync/handlers"
+	"github.com/gin-contrib/cors"
+
 )
 
 func main() {
@@ -12,6 +14,12 @@ func main() {
     database.DB.AutoMigrate(&models.Estudiante{}, &models.Asignatura{}, &models.Profesor{}, &models.Profeciclo{}, &models.Matricula{})
 
     r := gin.Default()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"}, // o IP de la PC con el frontend
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowCredentials: true,
+	}))
 
     r.POST("/estudiantes", handlers.CreateEstudiante)
 	r.GET("/estudiantes", handlers.GetEstudiantes)

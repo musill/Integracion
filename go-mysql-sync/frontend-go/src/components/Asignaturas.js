@@ -27,14 +27,15 @@ const Asignaturas = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const payload = {
-      idasignatura: parseInt(formData.idasignatura),
-      nombre: formData.nombre,
+      IDAsignatura: parseInt(formData.idasignatura),
+      Nombre: formData.nombre,
     };
 
     try {
       if (editId) {
-        await axios.put(`${apiBaseUrl}/asignaturas/${editId}`, payload);
+        await axios.put(`${apiBaseUrl}/asignaturas/${formData.idasignatura}`, payload);
         alert("Asignatura actualizada");
         setEditId(null);
       } else {
@@ -50,8 +51,8 @@ const Asignaturas = () => {
   };
 
   const handleEdit = (asig) => {
-    setEditId(asig.idasignatura);
-    setFormData({ idasignatura: asig.idasignatura, nombre: asig.nombre });
+    setEditId(asig.IDAsignatura);
+    setFormData({ idasignatura: asig.IDAsignatura, nombre: asig.Nombre });
   };
 
   const handleDelete = async (id) => {
@@ -81,7 +82,7 @@ const Asignaturas = () => {
             value={formData.idasignatura}
             onChange={handleChange}
             required
-            disabled={!!editId} // No permitir cambiar el ID al editar
+            disabled={!!editId}
           />
         </div>
         <div className="col-md-7">
@@ -128,17 +129,17 @@ const Asignaturas = () => {
         </thead>
         <tbody>
           {asignaturas.map((asig) => (
-            <tr key={asig.idasignatura}>
-              <td>{asig.idasignatura}</td>
+            <tr key={asig.IDAsignatura}>
+              <td>{asig.IDAsignatura}</td>
               <td>
                 <input
                   type="text"
-                  value={asig.nombre}
+                  value={asig.Nombre}
                   className="form-control text-center"
                   onChange={(e) => {
                     const updated = asignaturas.map((item) =>
-                      item.idasignatura === asig.idasignatura
-                        ? { ...item, nombre: e.target.value }
+                      item.IDAsignatura === asig.IDAsignatura
+                        ? { ...item, Nombre: e.target.value }
                         : item
                     );
                     setAsignaturas(updated);
@@ -155,7 +156,7 @@ const Asignaturas = () => {
                   </button>
                   <button
                     className="btn btn-danger btn-sm"
-                    onClick={() => handleDelete(asig.idasignatura)}
+                    onClick={() => handleDelete(asig.IDAsignatura)}
                   >
                     <i className="bi bi-trash"></i>
                   </button>

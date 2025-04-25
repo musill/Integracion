@@ -8,12 +8,12 @@ const Matricula = () => {
   const [matriculas, setMatriculas] = useState([]);
 
   const [formData, setFormData] = useState({
-    id_estudiante: "",
-    id_asignatura: "",
-    id_ciclo: "",
-    notauno: 0,
-    notados: 0,
-    supletorio: 0,
+    IDEstudiante: "",
+    IDAsignatura: "",
+    IDCiclo: "",
+    NotaUno: 0,
+    NotaDos: 0,
+    Supletorio: 0,
   });
 
   const [editId, setEditId] = useState(null);
@@ -35,24 +35,40 @@ const Matricula = () => {
     }
   };
 
+  const calcularSupletorio = (n1, n2) => {
+    const nota1 = parseFloat(n1);
+    const nota2 = parseFloat(n2);
+    if (isNaN(nota1) || isNaN(nota2)) return 0;
+
+    const promedio = (nota1 + nota2) / 2;
+    return promedio < 7 ? +(7 - promedio).toFixed(2) : 0;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    const updatedForm = { ...formData, [name]: value };
+
+    if (name === "NotaUno" || name === "NotaDos") {
+      const nuevoSuple = calcularSupletorio(
+        name === "NotaUno" ? value : formData.NotaUno,
+        name === "NotaDos" ? value : formData.NotaDos
+      );
+      updatedForm.Supletorio = nuevoSuple;
+    }
+
+    setFormData(updatedForm);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const payload = {
-      ...formData,
-      id_asignatura: parseInt(formData.id_asignatura),
-      id_ciclo: parseInt(formData.id_ciclo),
-      notauno: 0,
-      notados: 0,
-      supletorio: 0,
+      IDEstudiante: formData.IDEstudiante,
+      IDAsignatura: parseInt(formData.IDAsignatura),
+      IDCiclo: parseInt(formData.IDCiclo),
+      NotaUno: parseFloat(formData.NotaUno),
+      NotaDos: parseFloat(formData.NotaDos),
+      Supletorio: parseFloat(formData.Supletorio),
     };
 
     try {
@@ -66,12 +82,12 @@ const Matricula = () => {
       }
 
       setFormData({
-        id_estudiante: "",
-        id_asignatura: "",
-        id_ciclo: "",
-        notauno: 0,
-        notados: 0,
-        supletorio: 0,
+        IDEstudiante: "",
+        IDAsignatura: "",
+        IDCiclo: "",
+        NotaUno: 0,
+        NotaDos: 0,
+        Supletorio: 0,
       });
       fetchMatriculas();
     } catch (error) {
@@ -81,14 +97,14 @@ const Matricula = () => {
   };
 
   const handleEdit = (matricula) => {
-    setEditId(matricula.id);
+    setEditId(matricula.ID);
     setFormData({
-      id_estudiante: matricula.id_estudiante,
-      id_asignatura: matricula.id_asignatura,
-      id_ciclo: matricula.id_ciclo,
-      notauno: matricula.notauno,
-      notados: matricula.notados,
-      supletorio: matricula.supletorio,
+      IDEstudiante: matricula.IDEstudiante,
+      IDAsignatura: matricula.IDAsignatura,
+      IDCiclo: matricula.IDCiclo,
+      NotaUno: matricula.NotaUno,
+      NotaDos: matricula.NotaDos,
+      Supletorio: matricula.Supletorio,
     });
   };
 
@@ -104,6 +120,10 @@ const Matricula = () => {
     }
   };
 
+  const getNombreEstudiante = (id) => estudiantes.find((e) => e.ID === id)?.Nombre || "Desconocido";
+  const getNombreAsignatura = (id) => asignaturas.find((a) => a.IDAsignatura === id)?.Nombre || "Desconocido";
+  const getNombreCiclo = (id) => profeciclos.find((p) => p.ID === id)?.Ciclo || "Desconocido";
+
   return (
     <div className="container mt-4">
       <h2 className="text-center text-danger mb-4">{editId ? "Editar Matrícula" : "Registrar Matrícula"}</h2>
@@ -111,16 +131,16 @@ const Matricula = () => {
       <form onSubmit={handleSubmit} className="row g-3 mb-4">
         <div className="col-md-4">
           <select
-            name="id_estudiante"
+            name="IDEstudiante"
             className="form-select"
-            value={formData.id_estudiante}
+            value={formData.IDEstudiante}
             onChange={handleChange}
             required
           >
             <option value="">Seleccione Estudiante</option>
             {estudiantes.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.nombre}
+              <option key={e.ID} value={e.ID}>
+                {e.Nombre}
               </option>
             ))}
           </select>
@@ -128,16 +148,16 @@ const Matricula = () => {
 
         <div className="col-md-4">
           <select
-            name="id_asignatura"
+            name="IDAsignatura"
             className="form-select"
-            value={formData.id_asignatura}
+            value={formData.IDAsignatura}
             onChange={handleChange}
             required
           >
             <option value="">Seleccione Asignatura</option>
             {asignaturas.map((a) => (
-              <option key={a.idasignatura} value={a.idasignatura}>
-                {a.nombre}
+              <option key={a.IDAsignatura} value={a.IDAsignatura}>
+                {a.Nombre}
               </option>
             ))}
           </select>
@@ -145,30 +165,68 @@ const Matricula = () => {
 
         <div className="col-md-4">
           <select
-            name="id_ciclo"
+            name="IDCiclo"
             className="form-select"
-            value={formData.id_ciclo}
+            value={formData.IDCiclo}
             onChange={handleChange}
             required
           >
             <option value="">Seleccione Ciclo</option>
             {profeciclos.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.ciclo}
+              <option key={p.ID} value={p.ID}>
+                {p.Ciclo}
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="col-md-4">
+          <label className="form-label">Nota 1</label>
+          <input
+            type="number"
+            step="0.01"
+            className="form-control"
+            name="NotaUno"
+            value={formData.NotaUno}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="col-md-4">
+          <label className="form-label">Nota 2</label>
+          <input
+            type="number"
+            step="0.01"
+            className="form-control"
+            name="NotaDos"
+            value={formData.NotaDos}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="col-md-4">
+          <label className="form-label">Supletorio (automático)</label>
+          <input
+            type="number"
+            step="0.01"
+            className="form-control"
+            name="Supletorio"
+            value={formData.Supletorio}
+            readOnly
+          />
         </div>
 
         <div className="col-md-4">
           <button type="submit" className="btn btn-primary w-100">
             {editId ? (
               <>
-                <i className="bi bi-pencil-square me-2"></i> Actualizar
+                <i className="bi bi-pencil-square me-2"></i>Actualizar
               </>
             ) : (
               <>
-                <i className="bi bi-save me-2"></i> Guardar
+                <i className="bi bi-save me-2"></i>Guardar
               </>
             )}
           </button>
@@ -191,19 +249,19 @@ const Matricula = () => {
         </thead>
         <tbody>
           {matriculas.map((mat) => (
-            <tr key={mat.id}>
-              <td>{estudiantes.find((e) => e.id === mat.id_estudiante)?.nombre || "Desconocido"}</td>
-              <td>{asignaturas.find((a) => a.idasignatura === mat.id_asignatura)?.nombre || "Desconocido"}</td>
-              <td>{profeciclos.find((p) => p.id === mat.id_ciclo)?.ciclo || "Desconocido"}</td>
-              <td>{mat.notauno}</td>
-              <td>{mat.notados}</td>
-              <td>{mat.supletorio}</td>
+            <tr key={mat.ID}>
+              <td>{getNombreEstudiante(mat.IDEstudiante)}</td>
+              <td>{getNombreAsignatura(mat.IDAsignatura)}</td>
+              <td>{getNombreCiclo(mat.IDCiclo)}</td>
+              <td>{mat.NotaUno}</td>
+              <td>{mat.NotaDos}</td>
+              <td>{mat.Supletorio}</td>
               <td>
                 <div className="d-flex justify-content-center gap-2">
                   <button className="btn btn-success btn-sm" onClick={() => handleEdit(mat)}>
                     <i className="bi bi-pencil-square"></i>
                   </button>
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(mat.id)}>
+                  <button className="btn btn-danger btn-sm" onClick={() => handleDelete(mat.ID)}>
                     <i className="bi bi-trash"></i>
                   </button>
                 </div>

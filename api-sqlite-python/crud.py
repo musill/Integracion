@@ -75,7 +75,7 @@ def get_pending_asignaturas(db: Session):
 def update_flag_asignatura(db: Session, idasig: int):
     obj = db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
     if obj:
-        obj.flag_sync = False
+        obj.flag_sync = True
         db.commit()
     return obj
 

@@ -129,7 +129,7 @@ def update_prof(idprof: int, obj: schemas.ProfesorCreate, db: Session = Depends(
         raise HTTPException(status_code=404, detail="Profesor no encontrado")
     for key, value in obj.dict().items():
         setattr(db_obj, key, value)
-    db_obj.flag_sync = "True"  
+    db_obj.flag_sync = False  
     db.commit()
     db.refresh(db_obj)
     return db_obj

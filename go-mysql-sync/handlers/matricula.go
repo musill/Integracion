@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go-mysql-sync/database"
@@ -37,15 +38,25 @@ func GetMatriculaByID(c *gin.Context) {
 	c.JSON(http.StatusOK, matricula)
 }
 
-// Actualizar matrícula
+// Actualizar o crear matrícula (upsert)
 func UpdateMatricula(c *gin.Context) {
 	id := c.Param("id")
 	var existing models.Matricula
 	if err := database.DB.First(&existing, "id = ?", id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Matrícula no encontrada"})
+		// No existe → la creamos
+		var nueva models.Matricula
+		if err := c.ShouldBindJSON(&nueva); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		nueva.ID, _ = strconv.Atoi(id)
+		nueva.FlagSync = false
+		database.DB.Create(&nueva)
+		c.JSON(http.StatusCreated, nueva)
 		return
 	}
 
+	// Ya existe → actualizar
 	var input models.Matricula
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

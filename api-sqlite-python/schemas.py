@@ -55,6 +55,11 @@ class Matricula(MatriculaBase):
     class Config:
         orm_mode = True
 
+class MatriculaNotasUpdate(BaseModel):
+    notauno: float
+    notados: float
+    supletorio: float
+
 # Profeciclo
 class ProfecicloBase(BaseModel):
     ciclo: str

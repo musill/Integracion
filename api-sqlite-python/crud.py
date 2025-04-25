@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 import models, schemas
@@ -44,6 +45,26 @@ def update_flag_estudiante(db: Session, est_id: str):
     return est
 
 ### -------- Asignatura --------
+
+def create_or_update_asignatura(db: Session, idasig: int, obj: schemas.AsignaturaCreate):
+    db_obj = db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
+    if db_obj:
+        for key, value in obj.dict().items():
+            setattr(db_obj, key, value)
+        db_obj.flag_sync = False
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+    else:
+        data = obj.dict()
+        data.pop("idasignatura", None)  # 💡 quitar para evitar duplicado
+        new_obj = models.Asignatura(idasignatura=idasig, **data)
+        new_obj.flag_sync = False
+        db.add(new_obj)
+        db.commit()
+        db.refresh(new_obj)
+        return new_obj
+
 def create_asignatura(db: Session, obj: schemas.AsignaturaCreate):
     db_obj = models.Asignatura(**obj.dict())
     db.add(db_obj)
@@ -56,13 +77,13 @@ def get_asignaturas(db: Session):
 
 def get_update_asignatura(db: Session, idasig: int, obj: schemas.AsignaturaCreate):
     db_obj = db.query(models.Asignatura).filter(models.Asignatura.idasignatura == idasig).first()
-    if db_obj:
-        for key, value in obj.dict().items():
-            setattr(db_obj, key, value)
-           
-        db_obj.flag_sync = False
-        db.commit()
-        db.refresh(db_obj)
+    if not db_obj:
+        raise HTTPException(status_code=404, detail="Asignatura no encontrada")
+    for key, value in obj.dict().items():
+        setattr(db_obj, key, value)
+    db_obj.flag_sync = False
+    db.commit()
+    db.refresh(db_obj)
     return db_obj
 
 def get_asignatura_by_id(db: Session, idasig: int):
@@ -144,6 +165,18 @@ def update_flag_matricula(db: Session, id: int):
         db.commit()
     return obj
 
+def update_notas_matricula(db: Session, id: int, obj: schemas.MatriculaNotasUpdate):
+    db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
+    if not db_obj:
+        raise HTTPException(status_code=404, detail="Matrícula no encontrada")
+    db_obj.notauno = obj.notauno
+    db_obj.notados = obj.notados
+    db_obj.supletorio = obj.supletorio
+    db_obj.flag_sync = False
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
 ### -------- Profeciclo --------
 def create_profeciclo(db: Session, obj: schemas.ProfecicloCreate):
     db_obj = models.Profeciclo(**obj.dict())
@@ -169,10 +202,30 @@ def update_flag_profeciclo(db: Session, id: int):
     return obj
 def get_update_profeciclo(db: Session, id: int, obj: schemas.ProfecicloCreate):
     db_obj = db.query(models.Profeciclo).filter(models.Profeciclo.id == id).first()
+    if not db_obj:
+        raise HTTPException(status_code=404, detail="Profeciclo no encontrado")
+    for key, value in obj.dict().items():
+        setattr(db_obj, key, value)
+    db_obj.flag_sync = False
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
+
+def create_or_update_profeciclo(db: Session, id: int, obj: schemas.ProfecicloCreate):
+    db_obj = db.query(models.Profeciclo).filter(models.Profeciclo.id == id).first()
     if db_obj:
         for key, value in obj.dict().items():
             setattr(db_obj, key, value)
         db_obj.flag_sync = False
         db.commit()
         db.refresh(db_obj)
-    return db_obj
+        return db_obj
+    else:
+        new_obj = models.Profeciclo(id=id, **obj.dict())
+        new_obj.flag_sync = False
+        db.add(new_obj)
+        db.commit()
+        db.refresh(new_obj)
+        return new_obj
+
+

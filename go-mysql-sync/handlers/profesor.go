@@ -30,7 +30,7 @@ func GetProfesores(c *gin.Context) {
 func GetProfesorByID(c *gin.Context) {
 	id := c.Param("id")
 	var profesor models.Profesor
-	if err := database.DB.First(&profesor, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&profesor, "id_profesor = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profesor no encontrado"})
 		return
 	}
@@ -41,7 +41,7 @@ func GetProfesorByID(c *gin.Context) {
 func UpdateProfesor(c *gin.Context) {
 	id := c.Param("id")
 	var existing models.Profesor
-	if err := database.DB.First(&existing, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&existing, "id_profesor = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profesor no encontrado"})
 		return
 	}
@@ -62,7 +62,7 @@ func UpdateProfesor(c *gin.Context) {
 func DeleteProfesor(c *gin.Context) {
 	id := c.Param("id")
 	var profesor models.Profesor
-	if err := database.DB.First(&profesor, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&profesor, "id_profesor = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profesor no encontrado"})
 		return
 	}
@@ -81,7 +81,7 @@ func GetProfesoresPendientes(c *gin.Context) {
 func UpdateFlagProfesor(c *gin.Context) {
 	id := c.Param("id")
 	var profesor models.Profesor
-	if err := database.DB.First(&profesor, "id = ?", id).Error; err != nil {
+	if err := database.DB.First(&profesor, "id_profesor = ?", id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profesor no encontrado"})
 		return
 	}

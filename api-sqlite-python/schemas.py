@@ -27,12 +27,13 @@ class Asignatura(AsignaturaBase):
 
 # Profesor
 class ProfesorBase(BaseModel):
-    idprofesor: int
+    
     nombre: str
 
 class ProfesorCreate(ProfesorBase): pass
 
 class Profesor(ProfesorBase):
+    idprofesor: int
     flag_sync: Optional[bool]
     class Config:
         orm_mode = True

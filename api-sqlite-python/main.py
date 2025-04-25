@@ -126,7 +126,13 @@ def pending_profs(db: Session = Depends(get_db)):
 def update_prof(idprof: int, obj: schemas.ProfesorCreate, db: Session = Depends(get_db)):
     db_obj = db.query(models.Profesor).filter(models.Profesor.idprofesor == idprof).first()
     if not db_obj:
-        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+        # Crear si no existe
+        new_prof = models.Profesor(idprofesor=idprof, **obj.dict(), flag_sync=False)
+        db.add(new_prof)
+        db.commit()
+        db.refresh(new_prof)
+        return new_prof
+    # Actualizar si existe
     for key, value in obj.dict().items():
         setattr(db_obj, key, value)
     db_obj.flag_sync = False  

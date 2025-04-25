@@ -29,10 +29,9 @@ def update_estudiante(db: Session, est_id: str, obj: schemas.EstudianteCreate):
 def delete_estudiante(db: Session, est_id: str):
     db_obj = db.query(models.Estudiante).filter(models.Estudiante.id == est_id).first()
     if db_obj:
-        db_obj.flag_sync = False 
+        db.delete(db_obj)
         db.commit()
-        db.refresh(db_obj)
-    return db_obj
+    return {"mensaje": "Estudiante eliminado con éxito"}
 
 def get_pending_estudiantes(db: Session):
     return db.query(models.Estudiante).filter(models.Estudiante.flag_sync == False).all()
@@ -121,7 +120,7 @@ def get_matricula_by_id(db: Session, id: int):
 def update_matricula(db: Session, id: int, obj: schemas.MatriculaCreate):
         db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
         if db_obj:
-            for key, value in obj.dict(exclude={"notauno", "notados", "supletorio"}).items():
+            for key, value in obj.dict().items():
                 setattr(db_obj, key, value)
             db_obj.flag_sync = False  
             db.commit()
@@ -131,10 +130,9 @@ def update_matricula(db: Session, id: int, obj: schemas.MatriculaCreate):
 def delete_matricula(db: Session, id: int): 
     db_obj = db.query(models.Matricula).filter(models.Matricula.id == id).first()
     if db_obj:
-        db_obj.flag_sync = False  
+        db.delete(db_obj)
         db.commit()
-        db.refresh(db_obj)
-    return db_obj
+    return {"mensaje": "Matrícula eliminada con éxito"}
 
 def get_pending_matriculas(db: Session):
     return db.query(models.Matricula).filter(models.Matricula.flag_sync == False).all()
@@ -174,6 +172,7 @@ def get_update_profeciclo(db: Session, id: int, obj: schemas.ProfecicloCreate):
     if db_obj:
         for key, value in obj.dict().items():
             setattr(db_obj, key, value)
+        db_obj.flag_sync = False
         db.commit()
         db.refresh(db_obj)
     return db_obj
